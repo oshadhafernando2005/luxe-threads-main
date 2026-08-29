@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Mail, Phone, Twitter, Youtube } from "lucide-react";
+import { Instagram, Lock, Mail, Phone, Twitter, Youtube } from "lucide-react";
 
 export function SiteFooter() {
   return (
@@ -8,7 +8,7 @@ export function SiteFooter() {
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
             <p className="font-display text-2xl font-extrabold">
-              LUMEN<span className="text-coral">.</span>
+              WEST CORE<span className="text-coral">.</span>
             </p>
             <p className="mt-2 max-w-xs text-sm text-muted-foreground">
               Considered t-shirts, made in small batches from long-staple cotton.
@@ -18,10 +18,8 @@ export function SiteFooter() {
           <div className="text-sm">
             <p className="font-semibold">Shop</p>
             <ul className="mt-3 space-y-2 text-muted-foreground">
-              <li>
-                <Link to="/men" className="hover:text-coral">
-                  Men's Collection
-                </Link>
+              <li className="flex items-center gap-1.5 text-muted-foreground/50">
+                Men's Collection <Lock className="h-3.5 w-3.5" />
               </li>
               <li>
                 <Link to="/women" className="hover:text-coral">
@@ -40,7 +38,7 @@ export function SiteFooter() {
             <p className="font-semibold">Contact</p>
             <ul className="mt-3 space-y-2 text-muted-foreground">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" /> hello@lumen.studio
+                <Mail className="h-4 w-4 shrink-0" /> hello@westcore.com
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0" /> +1 (415) 555-0134
@@ -61,7 +59,9 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} Lumen Studio. All rights reserved.</p>
+        <p className="mt-10 text-xs text-muted-foreground">
+          © {new Date().getFullYear()} West Core. All rights reserved.
+        </p>
       </div>
     </footer>
   );

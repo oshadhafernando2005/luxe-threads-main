@@ -1,0 +1,818 @@
+diff --git a/src/components/BottomNav.tsx b/src/components/BottomNav.tsx
+index 196cb86..e8fd4d5 100644
+--- a/src/components/BottomNav.tsx
++++ b/src/components/BottomNav.tsx
+@@ -1,13 +1,13 @@
+ import { Link, useRouterState } from "@tanstack/react-router";
+-import { Home, ShoppingBag, User, Users } from "lucide-react";
++import { Home, Lock, ShoppingBag, User, Users } from "lucide-react";
+ import { useCart } from "@/lib/cart";
+ import { cn } from "@/lib/utils";
+ 
+ const items = [
+-  { to: "/", label: "Home", icon: Home },
+-  { to: "/men", label: "Men", icon: User },
+-  { to: "/women", label: "Women", icon: Users },
+-  { to: "/cart", label: "Bag", icon: ShoppingBag },
++  { to: "/", label: "Home", icon: Home, locked: false },
++  { to: "/men", label: "Men", icon: User, locked: true },
++  { to: "/women", label: "Women", icon: Users, locked: false },
++  { to: "/cart", label: "Bag", icon: ShoppingBag, locked: false },
+ ] as const;
+ 
+ export function BottomNav() {
+@@ -17,8 +17,26 @@ export function BottomNav() {
+   return (
+     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+       <ul className="grid grid-cols-4">
+-        {items.map(({ to, label, icon: Icon }) => {
++        {items.map(({ to, label, icon: Icon, locked }) => {
+           const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
++
++          if (locked) {
++            return (
++              <li key={to}>
++                <span
++                  aria-disabled="true"
++                  className="press relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground/40"
++                >
++                  <span className="relative">
++                    <Icon className="h-5 w-5" />
++                    <Lock className="absolute -right-1.5 -top-1.5 h-3 w-3 rounded-full bg-background p-0.5" />
++                  </span>
++                  {label}
++                </span>
++              </li>
++            );
++          }
++
+           return (
+             <li key={to}>
+               <Link
+diff --git a/src/components/CollectionView.tsx b/src/components/CollectionView.tsx
+index b04596c..3ec0ff6 100644
+--- a/src/components/CollectionView.tsx
++++ b/src/components/CollectionView.tsx
+@@ -3,7 +3,14 @@ import { SlidersHorizontal, X } from "lucide-react";
+ import { ProductCard } from "@/components/ProductCard";
+ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+ import { Slider } from "@/components/ui/slider";
+-import { CATEGORIES, COLOR_SWATCHES, SIZES, formatPrice, products, type Gender } from "@/lib/products";
++import {
++  CATEGORIES,
++  COLOR_SWATCHES,
++  SIZES,
++  formatPrice,
++  products,
++  type Gender,
++} from "@/lib/products";
+ import { cn } from "@/lib/utils";
+ 
+ type Sort = "newest" | "popular" | "price-asc" | "price-desc";
+@@ -30,7 +37,9 @@ function Chip({
+       onClick={onClick}
+       className={cn(
+         "press rounded-full border px-4 py-2 text-sm font-medium",
+-        active ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card text-foreground",
++        active
++          ? "border-transparent bg-primary text-primary-foreground"
++          : "border-border bg-card text-foreground",
+       )}
+     >
+       {children}
+@@ -38,7 +47,15 @@ function Chip({
+   );
+ }
+ 
+-export function CollectionView({ gender, title, blurb }: { gender: Gender; title: string; blurb: string }) {
++export function CollectionView({
++  gender,
++  title,
++  blurb,
++}: {
++  gender: Gender;
++  title: string;
++  blurb: string;
++}) {
+   const [open, setOpen] = useState(false);
+   const [categories, setCategories] = useState<string[]>([]);
+   const [sizes, setSizes] = useState<string[]>([]);
+@@ -123,7 +140,11 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
+                 <p className="mb-3 text-sm font-semibold">Category</p>
+                 <div className="flex flex-wrap gap-2">
+                   {CATEGORIES.map((c) => (
+-                    <Chip key={c} active={categories.includes(c)} onClick={() => toggle(categories, setCategories, c)}>
++                    <Chip
++                      key={c}
++                      active={categories.includes(c)}
++                      onClick={() => toggle(categories, setCategories, c)}
++                    >
+                       {c}
+                     </Chip>
+                   ))}
+@@ -134,7 +155,11 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
+                 <p className="mb-3 text-sm font-semibold">Size</p>
+                 <div className="flex flex-wrap gap-2">
+                   {SIZES.map((s) => (
+-                    <Chip key={s} active={sizes.includes(s)} onClick={() => toggle(sizes, setSizes, s)}>
++                    <Chip
++                      key={s}
++                      active={sizes.includes(s)}
++                      onClick={() => toggle(sizes, setSizes, s)}
++                    >
+                       {s}
+                     </Chip>
+                   ))}
+@@ -226,12 +251,14 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
+ 
+       <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+         {list.map((p, i) => (
+-          <ProductCard key={p.id} product={p} index={i} />
++          <ProductCard key={p.id} product={p} index={i} locked={p.id !== "noir-oversized"} />
+         ))}
+       </div>
+ 
+       {list.length === 0 && (
+-        <p className="py-20 text-center text-sm text-muted-foreground">No pieces match these filters yet.</p>
++        <p className="py-20 text-center text-sm text-muted-foreground">
++          No pieces match these filters yet.
++        </p>
+       )}
+     </section>
+   );
+diff --git a/src/components/ProductCard.tsx b/src/components/ProductCard.tsx
+index 8639432..8e3b0f0 100644
+--- a/src/components/ProductCard.tsx
++++ b/src/components/ProductCard.tsx
+@@ -1,14 +1,71 @@
+ import { Link } from "@tanstack/react-router";
+-import { Heart, ShoppingBag } from "lucide-react";
++import { Heart, Lock, ShoppingBag } from "lucide-react";
+ import { toast } from "sonner";
+ import { useCart } from "@/lib/cart";
+ import { COLOR_SWATCHES, formatPrice, type Product } from "@/lib/products";
+ import { cn } from "@/lib/utils";
+ 
+-export function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
++export function ProductCard({
++  product,
++  index = 0,
++  locked = false,
++}: {
++  product: Product;
++  index?: number;
++  locked?: boolean;
++}) {
+   const { add, toggleFavorite, favorites } = useCart();
+   const faved = favorites.includes(product.id);
+ 
++  if (locked) {
++    return (
++      <article
++        className="group rise-in surface-card overflow-hidden"
++        style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
++      >
++        <button
++          type="button"
++          onClick={() => toast("This piece is locked", { description: "Check back soon." })}
++          aria-label={`${product.name} — locked`}
++          className="relative block w-full overflow-hidden rounded-t-2xl bg-secondary"
++        >
++          <img
++            src={product.image}
++            alt={product.name}
++            width={800}
++            height={1000}
++            loading="lazy"
++            className="aspect-[4/5] w-full scale-105 object-cover blur-md brightness-[0.6]"
++          />
++          <div className="absolute inset-0 grid place-items-center bg-foreground/10">
++            <span className="grid h-12 w-12 place-items-center rounded-full bg-background/90 shadow-soft backdrop-blur">
++              <Lock className="h-5 w-5 text-foreground" />
++            </span>
++          </div>
++        </button>
++
++        <div className="space-y-2.5 p-3 sm:p-4">
++          <div className="min-w-0">
++            <h3 className="truncate text-sm font-semibold text-muted-foreground sm:text-base">
++              {product.name}
++            </h3>
++            <p className="mt-0.5 text-xs text-muted-foreground">{product.category}</p>
++          </div>
++
++          <div className="flex items-center justify-between gap-2">
++            <span className="font-display text-base font-bold text-muted-foreground">
++              {formatPrice(product.price)}
++            </span>
++            <span className="inline-flex h-9 items-center gap-1.5 rounded-full bg-secondary px-3.5 text-xs font-semibold text-muted-foreground">
++              <Lock className="h-3.5 w-3.5" />
++              Locked
++            </span>
++          </div>
++        </div>
++      </article>
++    );
++  }
++
+   return (
+     <article
+       className="group rise-in surface-card overflow-hidden"
+@@ -36,7 +93,9 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?:
+           }}
+           className="press absolute right-2.5 top-2.5 grid h-9 w-9 place-items-center rounded-full bg-card/85 backdrop-blur"
+         >
+-          <Heart className={cn("h-4.5 w-4.5", faved ? "fill-coral text-coral" : "text-foreground")} />
++          <Heart
++            className={cn("h-4.5 w-4.5", faved ? "fill-coral text-coral" : "text-foreground")}
++          />
+         </button>
+       </Link>
+ 
+@@ -64,7 +123,11 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?:
+           <button
+             type="button"
+             onClick={() => {
+-              add(product, product.sizes[Math.floor(product.sizes.length / 2)] ?? "M", product.colors[0] ?? "Black");
++              add(
++                product,
++                product.sizes[Math.floor(product.sizes.length / 2)] ?? "M",
++                product.colors[0] ?? "Black",
++              );
+               toast.success(`${product.name} added to bag`);
+             }}
+             className="press inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-3.5 text-xs font-semibold text-primary-foreground hover:bg-coral hover:text-coral-foreground"
+diff --git a/src/components/SiteFooter.tsx b/src/components/SiteFooter.tsx
+index 53d8c5b..540b3ac 100644
+--- a/src/components/SiteFooter.tsx
++++ b/src/components/SiteFooter.tsx
+@@ -1,5 +1,5 @@
+ import { Link } from "@tanstack/react-router";
+-import { Instagram, Mail, Phone, Twitter, Youtube } from "lucide-react";
++import { Instagram, Lock, Mail, Phone, Twitter, Youtube } from "lucide-react";
+ 
+ export function SiteFooter() {
+   return (
+@@ -8,7 +8,7 @@ export function SiteFooter() {
+         <div className="grid gap-8 sm:grid-cols-3">
+           <div>
+             <p className="font-display text-2xl font-extrabold">
+-              LUMEN<span className="text-coral">.</span>
++              WEST CORE<span className="text-coral">.</span>
+             </p>
+             <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+               Considered t-shirts, made in small batches from long-staple cotton.
+@@ -18,10 +18,8 @@ export function SiteFooter() {
+           <div className="text-sm">
+             <p className="font-semibold">Shop</p>
+             <ul className="mt-3 space-y-2 text-muted-foreground">
+-              <li>
+-                <Link to="/men" className="hover:text-coral">
+-                  Men's Collection
+-                </Link>
++              <li className="flex items-center gap-1.5 text-muted-foreground/50">
++                Men's Collection <Lock className="h-3.5 w-3.5" />
+               </li>
+               <li>
+                 <Link to="/women" className="hover:text-coral">
+@@ -40,7 +38,7 @@ export function SiteFooter() {
+             <p className="font-semibold">Contact</p>
+             <ul className="mt-3 space-y-2 text-muted-foreground">
+               <li className="flex items-center gap-2">
+-                <Mail className="h-4 w-4 shrink-0" /> hello@lumen.studio
++                <Mail className="h-4 w-4 shrink-0" /> hello@westcore.com
+               </li>
+               <li className="flex items-center gap-2">
+                 <Phone className="h-4 w-4 shrink-0" /> +1 (415) 555-0134
+@@ -61,7 +59,9 @@ export function SiteFooter() {
+           </div>
+         </div>
+ 
+-        <p className="mt-10 text-xs text-muted-foreground">© {new Date().getFullYear()} Lumen Studio. All rights reserved.</p>
++        <p className="mt-10 text-xs text-muted-foreground">
++          © {new Date().getFullYear()} West Core. All rights reserved.
++        </p>
+       </div>
+     </footer>
+   );
+diff --git a/src/components/SiteHeader.tsx b/src/components/SiteHeader.tsx
+index b9cb634..68976ad 100644
+--- a/src/components/SiteHeader.tsx
++++ b/src/components/SiteHeader.tsx
+@@ -1,5 +1,5 @@
+ import { Link, useRouterState } from "@tanstack/react-router";
+-import { ShoppingBag } from "lucide-react";
++import { Lock, ShoppingBag } from "lucide-react";
+ import { useCart } from "@/lib/cart";
+ import { cn } from "@/lib/utils";
+ 
+@@ -8,8 +8,8 @@ export function SiteHeader() {
+   const { count } = useCart();
+ 
+   const links = [
+-    { to: "/men", label: "Men" },
+-    { to: "/women", label: "Women" },
++    { to: "/men", label: "Men", locked: true },
++    { to: "/women", label: "Women", locked: false },
+   ] as const;
+ 
+   return (
+@@ -17,21 +17,32 @@ export function SiteHeader() {
+       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3.5 sm:px-6">
+         <div className="flex min-w-0 items-center gap-8">
+           <Link to="/" className="font-display text-xl font-extrabold tracking-tight">
+-            LUMEN<span className="text-coral">.</span>
++            WEST CORE<span className="text-coral">.</span>
+           </Link>
+           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+-            {links.map((l) => (
+-              <Link
+-                key={l.to}
+-                to={l.to}
+-                className={cn(
+-                  "transition-colors hover:text-coral",
+-                  pathname.startsWith(l.to) ? "text-coral" : "text-muted-foreground",
+-                )}
+-              >
+-                {l.label}
+-              </Link>
+-            ))}
++            {links.map((l) =>
++              l.locked ? (
++                <span
++                  key={l.to}
++                  aria-disabled="true"
++                  className="inline-flex cursor-not-allowed items-center gap-1.5 text-muted-foreground/50"
++                >
++                  {l.label}
++                  <Lock className="h-3.5 w-3.5" />
++                </span>
++              ) : (
++                <Link
++                  key={l.to}
++                  to={l.to}
++                  className={cn(
++                    "transition-colors hover:text-coral",
++                    pathname.startsWith(l.to) ? "text-coral" : "text-muted-foreground",
++                  )}
++                >
++                  {l.label}
++                </Link>
++              ),
++            )}
+           </nav>
+         </div>
+         <Link
+diff --git a/src/lib/cart.tsx b/src/lib/cart.tsx
+index bc17ea1..bdd8cbe 100644
+--- a/src/lib/cart.tsx
++++ b/src/lib/cart.tsx
+@@ -1,4 +1,12 @@
+-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
++import {
++  createContext,
++  useCallback,
++  useContext,
++  useEffect,
++  useMemo,
++  useState,
++  type ReactNode,
++} from "react";
+ import { products, type Product } from "./products";
+ 
+ export type CartLine = {
+@@ -22,7 +30,7 @@ type CartState = {
+ 
+ const CartContext = createContext<CartState | null>(null);
+ 
+-const STORAGE_KEY = "lumen-cart-v1";
++const STORAGE_KEY = "westcore-cart-v1";
+ 
+ export function CartProvider({ children }: { children: ReactNode }) {
+   const [lines, setLines] = useState<CartLine[]>([]);
+@@ -62,13 +70,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
+ 
+   const setQty = useCallback(
+     (id: string, qty: number) =>
+-      setLines((p) => (qty <= 0 ? p.filter((l) => l.id !== id) : p.map((l) => (l.id === id ? { ...l, qty } : l)))),
++      setLines((p) =>
++        qty <= 0 ? p.filter((l) => l.id !== id) : p.map((l) => (l.id === id ? { ...l, qty } : l)),
++      ),
+     [],
+   );
+ 
+   const toggleFavorite = useCallback(
+     (productId: string) =>
+-      setFavorites((p) => (p.includes(productId) ? p.filter((x) => x !== productId) : [...p, productId])),
++      setFavorites((p) =>
++        p.includes(productId) ? p.filter((x) => x !== productId) : [...p, productId],
++      ),
+     [],
+   );
+ 
+diff --git a/src/routes/__root.tsx b/src/routes/__root.tsx
+index 8576087..c9398cb 100644
+--- a/src/routes/__root.tsx
++++ b/src/routes/__root.tsx
+@@ -82,11 +82,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+     meta: [
+       { charSet: "utf-8" },
+       { name: "viewport", content: "width=device-width, initial-scale=1" },
+-      { title: "Lumen Studio — Premium T-Shirts" },
+-      { name: "description", content: "Small-batch premium t-shirts in long-staple cotton for men and women." },
+-      { name: "author", content: "Lumen Studio" },
+-      { property: "og:title", content: "Lumen Studio — Premium T-Shirts" },
+-      { property: "og:description", content: "Small-batch premium t-shirts in long-staple cotton." },
++      { title: "West Core — Premium T-Shirts" },
++      {
++        name: "description",
++        content: "Small-batch premium t-shirts in long-staple cotton for men and women.",
++      },
++      { name: "author", content: "West Core" },
++      { property: "og:title", content: "West Core — Premium T-Shirts" },
++      {
++        property: "og:description",
++        content: "Small-batch premium t-shirts in long-staple cotton.",
++      },
+       { property: "og:type", content: "website" },
+       { name: "twitter:card", content: "summary_large_image" },
+     ],
+diff --git a/src/routes/cart.tsx b/src/routes/cart.tsx
+index 0328dce..a3bcca9 100644
+--- a/src/routes/cart.tsx
++++ b/src/routes/cart.tsx
+@@ -6,10 +6,16 @@ import { formatPrice, getProduct } from "@/lib/products";
+ export const Route = createFileRoute("/cart")({
+   head: () => ({
+     meta: [
+-      { title: "Your Bag | Lumen Studio" },
+-      { name: "description", content: "Review the premium t-shirts in your Lumen Studio bag and checkout." },
+-      { property: "og:title", content: "Your Bag | Lumen Studio" },
+-      { property: "og:description", content: "Review the premium t-shirts in your bag and checkout." },
++      { title: "Your Bag | West Core" },
++      {
++        name: "description",
++        content: "Review the premium t-shirts in your West Core bag and checkout.",
++      },
++      { property: "og:title", content: "Your Bag | West Core" },
++      {
++        property: "og:description",
++        content: "Review the premium t-shirts in your bag and checkout.",
++      },
+     ],
+   }),
+   component: CartPage,
+@@ -28,9 +34,11 @@ function CartPage() {
+           <span className="grid h-16 w-16 place-items-center rounded-full bg-secondary">
+             <ShoppingBag className="h-6 w-6" />
+           </span>
+-          <p className="text-sm text-muted-foreground">Your bag is empty — the good stuff is one tap away.</p>
++          <p className="text-sm text-muted-foreground">
++            Your bag is empty — the good stuff is one tap away.
++          </p>
+           <Link
+-            to="/men"
++            to="/women"
+             className="press inline-flex h-12 items-center rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
+           >
+             Start shopping
+@@ -44,7 +52,11 @@ function CartPage() {
+               if (!product) return null;
+               return (
+                 <li key={line.id} className="surface-card rise-in flex gap-3 p-3">
+-                  <Link to="/product/$productId" params={{ productId: product.id }} className="shrink-0">
++                  <Link
++                    to="/product/$productId"
++                    params={{ productId: product.id }}
++                    className="shrink-0"
++                  >
+                     <img
+                       src={product.image}
+                       alt={product.name}
+@@ -91,7 +103,9 @@ function CartPage() {
+                           <Plus className="h-3.5 w-3.5" />
+                         </button>
+                       </div>
+-                      <span className="font-display font-bold">{formatPrice(product.price * line.qty)}</span>
++                      <span className="font-display font-bold">
++                        {formatPrice(product.price * line.qty)}
++                      </span>
+                     </div>
+                   </div>
+                 </li>
+@@ -110,7 +124,9 @@ function CartPage() {
+             </div>
+             <div className="flex justify-between border-t border-border pt-3">
+               <span className="font-semibold">Total</span>
+-              <span className="font-display text-xl font-bold">{formatPrice(subtotal + shipping)}</span>
++              <span className="font-display text-xl font-bold">
++                {formatPrice(subtotal + shipping)}
++              </span>
+             </div>
+             <button
+               type="button"
+diff --git a/src/routes/index.tsx b/src/routes/index.tsx
+index 1b5b2fa..08a0792 100644
+--- a/src/routes/index.tsx
++++ b/src/routes/index.tsx
+@@ -1,5 +1,5 @@
+ import { createFileRoute, Link } from "@tanstack/react-router";
+-import { ArrowRight } from "lucide-react";
++import { ArrowRight, Lock } from "lucide-react";
+ import heroImg from "@/assets/hero.jpg";
+ import mCard from "@/assets/m1.jpg";
+ import wCard from "@/assets/w1.jpg";
+@@ -9,16 +9,17 @@ import { products } from "@/lib/products";
+ export const Route = createFileRoute("/")({
+   head: () => ({
+     meta: [
+-      { title: "Lumen Studio — Premium T-Shirts for Men & Women" },
++      { title: "West Core — Premium T-Shirts for Men & Women" },
+       {
+         name: "description",
+         content:
+-          "Small-batch premium t-shirts in long-staple cotton. Shop the men's and women's collections at Lumen Studio.",
++          "Small-batch premium t-shirts in long-staple cotton. Shop the men's and women's collections at West Core.",
+       },
+-      { property: "og:title", content: "Lumen Studio — Premium T-Shirts for Men & Women" },
++      { property: "og:title", content: "West Core — Premium T-Shirts for Men & Women" },
+       {
+         property: "og:description",
+-        content: "Small-batch premium t-shirts in long-staple cotton. Shop men's and women's collections.",
++        content:
++          "Small-batch premium t-shirts in long-staple cotton. Shop men's and women's collections.",
+       },
+     ],
+   }),
+@@ -33,19 +34,23 @@ function Index() {
+       <section className="rise-in relative overflow-hidden rounded-3xl bg-secondary">
+         <img
+           src={heroImg}
+-          alt="A man and a woman wearing premium Lumen t-shirts"
++          alt="A man and a woman wearing premium West Core t-shirts"
+           width={1408}
+           height={1008}
+           className="h-[62vh] min-h-[400px] w-full object-cover object-top sm:h-[70vh]"
+         />
+         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-5 pt-24 sm:p-10 sm:pt-32">
+-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Spring Edit 2026</p>
+-          <h1 className="display-xl mt-2 max-w-xl text-4xl sm:text-6xl">The perfect tee, perfected again.</h1>
++          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">
++            Spring Edit 2026
++          </p>
++          <h1 className="display-xl mt-2 max-w-xl text-4xl sm:text-6xl">
++            The perfect tee, perfected again.
++          </h1>
+           <p className="mt-3 max-w-md text-sm text-muted-foreground sm:text-base">
+             Long-staple cotton, garment-dyed colour and a fit that holds. Made in small batches.
+           </p>
+           <Link
+-            to="/men"
++            to="/women"
+             className="press mt-5 inline-flex h-12 items-center gap-2 rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
+           >
+             Shop the edit <ArrowRight className="h-4 w-4" />
+@@ -54,35 +59,51 @@ function Index() {
+       </section>
+ 
+       <section className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-5">
+-        {[
+-          { to: "/men" as const, label: "Shop Men", img: mCard, note: "12 new arrivals" },
+-          { to: "/women" as const, label: "Shop Women", img: wCard, note: "14 new arrivals" },
+-        ].map((c) => (
+-          <Link
+-            key={c.to}
+-            to={c.to}
+-            className="group press relative overflow-hidden rounded-3xl bg-card shadow-soft"
+-          >
+-            <img
+-              src={c.img}
+-              alt={c.label}
+-              width={800}
+-              height={1000}
+-              loading="lazy"
+-              className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-80"
+-            />
+-            <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
+-            <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-3 p-5">
+-              <div className="min-w-0">
+-                <h2 className="font-display text-2xl font-extrabold text-background">{c.label}</h2>
+-                <p className="text-xs text-background/80">{c.note}</p>
+-              </div>
+-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-background">
+-                <ArrowRight className="h-4.5 w-4.5" />
+-              </span>
++        <div className="group relative overflow-hidden rounded-3xl bg-card shadow-soft">
++          <img
++            src={mCard}
++            alt="Shop Men"
++            width={800}
++            height={1000}
++            loading="lazy"
++            className="h-64 w-full scale-105 object-cover blur-md brightness-[0.6] sm:h-80"
++          />
++          <div className="absolute inset-0 grid place-items-center">
++            <span className="grid h-14 w-14 place-items-center rounded-full bg-background/90 shadow-soft backdrop-blur">
++              <Lock className="h-6 w-6 text-foreground" />
++            </span>
++          </div>
++          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-3 p-5">
++            <div className="min-w-0">
++              <h2 className="font-display text-2xl font-extrabold text-background">Shop Men</h2>
++              <p className="text-xs text-background/80">Locked</p>
+             </div>
+-          </Link>
+-        ))}
++          </div>
++        </div>
++
++        <Link
++          to="/women"
++          className="group press relative overflow-hidden rounded-3xl bg-card shadow-soft"
++        >
++          <img
++            src={wCard}
++            alt="Shop Women"
++            width={800}
++            height={1000}
++            loading="lazy"
++            className="h-64 w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:h-80"
++          />
++          <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
++          <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between gap-3 p-5">
++            <div className="min-w-0">
++              <h2 className="font-display text-2xl font-extrabold text-background">Shop Women</h2>
++              <p className="text-xs text-background/80">14 new arrivals</p>
++            </div>
++            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-background">
++              <ArrowRight className="h-4.5 w-4.5" />
++            </span>
++          </div>
++        </Link>
+       </section>
+ 
+       <section className="mt-12">
+@@ -94,7 +115,7 @@ function Index() {
+         </div>
+         <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
+           {featured.map((p, i) => (
+-            <ProductCard key={p.id} product={p} index={i} />
++            <ProductCard key={p.id} product={p} index={i} locked={p.id !== "noir-oversized"} />
+           ))}
+         </div>
+       </section>
+diff --git a/src/routes/men.tsx b/src/routes/men.tsx
+index 2487a46..edd1948 100644
+--- a/src/routes/men.tsx
++++ b/src/routes/men.tsx
+@@ -1,30 +1,8 @@
+-import { createFileRoute } from "@tanstack/react-router";
+-import { CollectionView } from "@/components/CollectionView";
++import { createFileRoute, redirect } from "@tanstack/react-router";
+ 
+ export const Route = createFileRoute("/men")({
+-  head: () => ({
+-    meta: [
+-      { title: "Men's T-Shirt Collection | Lumen Studio" },
+-      {
+-        name: "description",
+-        content: "Shop Lumen's men's t-shirts: heavyweight oversized cuts, essentials and vivid pigment dyes.",
+-      },
+-      { property: "og:title", content: "Men's T-Shirt Collection | Lumen Studio" },
+-      {
+-        property: "og:description",
+-        content: "Heavyweight oversized cuts, everyday essentials and vivid pigment dyes for men.",
+-      },
+-    ],
+-  }),
+-  component: MenPage,
++  beforeLoad: () => {
++    throw redirect({ to: "/" });
++  },
++  component: () => null,
+ });
+-
+-function MenPage() {
+-  return (
+-    <CollectionView
+-      gender="men"
+-      title="Men's Collection"
+-      blurb="Structured cuts and saturated colour, in heavyweight cotton built to last."
+-    />
+-  );
+-}
+diff --git a/src/routes/product.$productId.tsx b/src/routes/product.$productId.tsx
+index c2e14df..8dae008 100644
+--- a/src/routes/product.$productId.tsx
++++ b/src/routes/product.$productId.tsx
+@@ -1,5 +1,5 @@
+ import { useState } from "react";
+-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
++import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+ import { ArrowLeft } from "lucide-react";
+ import { toast } from "sonner";
+ import { useCart } from "@/lib/cart";
+@@ -7,6 +7,11 @@ import { COLOR_SWATCHES, formatPrice, getProduct, type Product } from "@/lib/pro
+ import { cn } from "@/lib/utils";
+ 
+ export const Route = createFileRoute("/product/$productId")({
++  beforeLoad: ({ params }) => {
++    if (params.productId !== "noir-oversized") {
++      throw redirect({ to: "/" });
++    }
++  },
+   loader: ({ params }) => {
+     const product = getProduct(params.productId);
+     if (!product) throw notFound();
+@@ -14,14 +19,16 @@ export const Route = createFileRoute("/product/$productId")({
+   },
+   head: ({ loaderData }) => {
+     if (!loaderData) {
+-      return { meta: [{ title: "Product not found | Lumen Studio" }, { name: "robots", content: "noindex" }] };
++      return {
++        meta: [{ title: "Product not found | West Core" }, { name: "robots", content: "noindex" }],
++      };
+     }
+     const { product } = loaderData;
+     return {
+       meta: [
+-        { title: `${product.name} | Lumen Studio` },
++        { title: `${product.name} | West Core` },
+         { name: "description", content: product.description.slice(0, 155) },
+-        { property: "og:title", content: `${product.name} | Lumen Studio` },
++        { property: "og:title", content: `${product.name} | West Core` },
+         { property: "og:description", content: product.description.slice(0, 155) },
+       ],
+     };
+@@ -37,7 +44,9 @@ function ProductPage() {
+   const hasStickers = !!product.stickers && product.stickers.length > 0;
+   const [sticker, setSticker] = useState(hasStickers ? product.stickers![0] : undefined);
+   const displayImage =
+-    (sticker && product.stickerImages?.[sticker]?.[color]) ?? product.images?.[color] ?? product.image;
++    (sticker && product.stickerImages?.[sticker]?.[color]) ??
++    product.images?.[color] ??
++    product.image;
+ 
+   return (
+     <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+@@ -60,7 +69,9 @@ function ProductPage() {
+         </div>
+ 
+         <div className="pb-32 pt-6 lg:pb-10">
+-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">{product.category}</p>
++          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
++            {product.category}
++          </p>
+           <h1 className="display-xl mt-2 text-3xl sm:text-4xl">{product.name}</h1>
+           <p className="mt-2 font-display text-2xl font-bold">{formatPrice(product.price)}</p>
+ 
+@@ -74,7 +85,9 @@ function ProductPage() {
+                   onClick={() => setSize(s)}
+                   className={cn(
+                     "press h-12 min-w-12 rounded-full border px-4 text-sm font-medium",
+-                    size === s ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card",
++                    size === s
++                      ? "border-transparent bg-primary text-primary-foreground"
++                      : "border-border bg-card",
+                   )}
+                 >
+                   {s}
+@@ -104,7 +117,9 @@ function ProductPage() {
+             </div>
+           </div>
+ 
+-          <p className="mt-7 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
++          <p className="mt-7 text-sm leading-relaxed text-muted-foreground">
++            {product.description}
++          </p>
+ 
+           {hasStickers && (
+             <div className="mt-7">
+@@ -155,4 +170,4 @@ function ProductPage() {
+       </div>
+     </div>
+   );
+-}
+\ No newline at end of file
++}
+diff --git a/src/routes/women.tsx b/src/routes/women.tsx
+index 3f18578..884bb56 100644
+--- a/src/routes/women.tsx
++++ b/src/routes/women.tsx
+@@ -4,12 +4,13 @@ import { CollectionView } from "@/components/CollectionView";
+ export const Route = createFileRoute("/women")({
+   head: () => ({
+     meta: [
+-      { title: "Women's T-Shirt Collection | Lumen Studio" },
++      { title: "Women's T-Shirt Collection | West Core" },
+       {
+         name: "description",
+-        content: "Shop Lumen's women's t-shirts: cropped, fitted and oversized silhouettes in premium cotton.",
++        content:
++          "Shop West Core's women's t-shirts: cropped, fitted and oversized silhouettes in premium cotton.",
+       },
+-      { property: "og:title", content: "Women's T-Shirt Collection | Lumen Studio" },
++      { property: "og:title", content: "Women's T-Shirt Collection | West Core" },
+       {
+         property: "og:description",
+         content: "Cropped, fitted and oversized silhouettes in premium long-staple cotton.",

@@ -82,11 +82,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lumen Studio — Premium T-Shirts" },
-      { name: "description", content: "Small-batch premium t-shirts in long-staple cotton for men and women." },
-      { name: "author", content: "Lumen Studio" },
-      { property: "og:title", content: "Lumen Studio — Premium T-Shirts" },
-      { property: "og:description", content: "Small-batch premium t-shirts in long-staple cotton." },
+      { title: "West Core — Premium T-Shirts" },
+      {
+        name: "description",
+        content: "Small-batch premium t-shirts in long-staple cotton for men and women.",
+      },
+      { name: "author", content: "West Core" },
+      { property: "og:title", content: "West Core — Premium T-Shirts" },
+      {
+        property: "og:description",
+        content: "Small-batch premium t-shirts in long-staple cotton.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

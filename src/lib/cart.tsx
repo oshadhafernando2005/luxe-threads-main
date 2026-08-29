@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { products, type Product } from "./products";
 
 export type CartLine = {
@@ -22,7 +30,7 @@ type CartState = {
 
 const CartContext = createContext<CartState | null>(null);
 
-const STORAGE_KEY = "lumen-cart-v1";
+const STORAGE_KEY = "westcore-cart-v1";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
@@ -62,13 +70,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const setQty = useCallback(
     (id: string, qty: number) =>
-      setLines((p) => (qty <= 0 ? p.filter((l) => l.id !== id) : p.map((l) => (l.id === id ? { ...l, qty } : l)))),
+      setLines((p) =>
+        qty <= 0 ? p.filter((l) => l.id !== id) : p.map((l) => (l.id === id ? { ...l, qty } : l)),
+      ),
     [],
   );
 
   const toggleFavorite = useCallback(
     (productId: string) =>
-      setFavorites((p) => (p.includes(productId) ? p.filter((x) => x !== productId) : [...p, productId])),
+      setFavorites((p) =>
+        p.includes(productId) ? p.filter((x) => x !== productId) : [...p, productId],
+      ),
     [],
   );
 

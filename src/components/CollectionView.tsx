@@ -3,7 +3,14 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { CATEGORIES, COLOR_SWATCHES, SIZES, formatPrice, products, type Gender } from "@/lib/products";
+import {
+  CATEGORIES,
+  COLOR_SWATCHES,
+  SIZES,
+  formatPrice,
+  products,
+  type Gender,
+} from "@/lib/products";
 import { cn } from "@/lib/utils";
 
 type Sort = "newest" | "popular" | "price-asc" | "price-desc";
@@ -30,7 +37,9 @@ function Chip({
       onClick={onClick}
       className={cn(
         "press rounded-full border px-4 py-2 text-sm font-medium",
-        active ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card text-foreground",
+        active
+          ? "border-transparent bg-primary text-primary-foreground"
+          : "border-border bg-card text-foreground",
       )}
     >
       {children}
@@ -38,7 +47,15 @@ function Chip({
   );
 }
 
-export function CollectionView({ gender, title, blurb }: { gender: Gender; title: string; blurb: string }) {
+export function CollectionView({
+  gender,
+  title,
+  blurb,
+}: {
+  gender: Gender;
+  title: string;
+  blurb: string;
+}) {
   const [open, setOpen] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
@@ -123,7 +140,11 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
                 <p className="mb-3 text-sm font-semibold">Category</p>
                 <div className="flex flex-wrap gap-2">
                   {CATEGORIES.map((c) => (
-                    <Chip key={c} active={categories.includes(c)} onClick={() => toggle(categories, setCategories, c)}>
+                    <Chip
+                      key={c}
+                      active={categories.includes(c)}
+                      onClick={() => toggle(categories, setCategories, c)}
+                    >
                       {c}
                     </Chip>
                   ))}
@@ -134,7 +155,11 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
                 <p className="mb-3 text-sm font-semibold">Size</p>
                 <div className="flex flex-wrap gap-2">
                   {SIZES.map((s) => (
-                    <Chip key={s} active={sizes.includes(s)} onClick={() => toggle(sizes, setSizes, s)}>
+                    <Chip
+                      key={s}
+                      active={sizes.includes(s)}
+                      onClick={() => toggle(sizes, setSizes, s)}
+                    >
                       {s}
                     </Chip>
                   ))}
@@ -226,12 +251,14 @@ export function CollectionView({ gender, title, blurb }: { gender: Gender; title
 
       <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
         {list.map((p, i) => (
-          <ProductCard key={p.id} product={p} index={i} />
+          <ProductCard key={p.id} product={p} index={i} locked={p.id !== "noir-oversized"} />
         ))}
       </div>
 
       {list.length === 0 && (
-        <p className="py-20 text-center text-sm text-muted-foreground">No pieces match these filters yet.</p>
+        <p className="py-20 text-center text-sm text-muted-foreground">
+          No pieces match these filters yet.
+        </p>
       )}
     </section>
   );

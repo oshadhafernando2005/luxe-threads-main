@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useCart } from "@/lib/cart";
@@ -7,6 +7,11 @@ import { COLOR_SWATCHES, formatPrice, getProduct, type Product } from "@/lib/pro
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/product/$productId")({
+  beforeLoad: ({ params }) => {
+    if (params.productId !== "noir-oversized") {
+      throw redirect({ to: "/" });
+    }
+  },
   loader: ({ params }) => {
     const product = getProduct(params.productId);
     if (!product) throw notFound();
@@ -14,14 +19,16 @@ export const Route = createFileRoute("/product/$productId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Product not found | Lumen Studio" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [{ title: "Product not found | West Core" }, { name: "robots", content: "noindex" }],
+      };
     }
     const { product } = loaderData;
     return {
       meta: [
-        { title: `${product.name} | Lumen Studio` },
+        { title: `${product.name} | West Core` },
         { name: "description", content: product.description.slice(0, 155) },
-        { property: "og:title", content: `${product.name} | Lumen Studio` },
+        { property: "og:title", content: `${product.name} | West Core` },
         { property: "og:description", content: product.description.slice(0, 155) },
       ],
     };
@@ -37,7 +44,9 @@ function ProductPage() {
   const hasStickers = !!product.stickers && product.stickers.length > 0;
   const [sticker, setSticker] = useState(hasStickers ? product.stickers![0] : undefined);
   const displayImage =
-    (sticker && product.stickerImages?.[sticker]?.[color]) ?? product.images?.[color] ?? product.image;
+    (sticker && product.stickerImages?.[sticker]?.[color]) ??
+    product.images?.[color] ??
+    product.image;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
@@ -60,7 +69,9 @@ function ProductPage() {
         </div>
 
         <div className="pb-32 pt-6 lg:pb-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">{product.category}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-coral">
+            {product.category}
+          </p>
           <h1 className="display-xl mt-2 text-3xl sm:text-4xl">{product.name}</h1>
           <p className="mt-2 font-display text-2xl font-bold">{formatPrice(product.price)}</p>
 
@@ -74,7 +85,9 @@ function ProductPage() {
                   onClick={() => setSize(s)}
                   className={cn(
                     "press h-12 min-w-12 rounded-full border px-4 text-sm font-medium",
-                    size === s ? "border-transparent bg-primary text-primary-foreground" : "border-border bg-card",
+                    size === s
+                      ? "border-transparent bg-primary text-primary-foreground"
+                      : "border-border bg-card",
                   )}
                 >
                   {s}
@@ -104,7 +117,9 @@ function ProductPage() {
             </div>
           </div>
 
-          <p className="mt-7 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+          <p className="mt-7 text-sm leading-relaxed text-muted-foreground">
+            {product.description}
+          </p>
 
           {hasStickers && (
             <div className="mt-7">

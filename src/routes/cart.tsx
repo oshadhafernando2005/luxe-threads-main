@@ -6,10 +6,16 @@ import { formatPrice, getProduct } from "@/lib/products";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "Your Bag | Lumen Studio" },
-      { name: "description", content: "Review the premium t-shirts in your Lumen Studio bag and checkout." },
-      { property: "og:title", content: "Your Bag | Lumen Studio" },
-      { property: "og:description", content: "Review the premium t-shirts in your bag and checkout." },
+      { title: "Your Bag | West Core" },
+      {
+        name: "description",
+        content: "Review the premium t-shirts in your West Core bag and checkout.",
+      },
+      { property: "og:title", content: "Your Bag | West Core" },
+      {
+        property: "og:description",
+        content: "Review the premium t-shirts in your bag and checkout.",
+      },
     ],
   }),
   component: CartPage,
@@ -28,9 +34,11 @@ function CartPage() {
           <span className="grid h-16 w-16 place-items-center rounded-full bg-secondary">
             <ShoppingBag className="h-6 w-6" />
           </span>
-          <p className="text-sm text-muted-foreground">Your bag is empty — the good stuff is one tap away.</p>
+          <p className="text-sm text-muted-foreground">
+            Your bag is empty — the good stuff is one tap away.
+          </p>
           <Link
-            to="/men"
+            to="/women"
             className="press inline-flex h-12 items-center rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
           >
             Start shopping
@@ -44,7 +52,11 @@ function CartPage() {
               if (!product) return null;
               return (
                 <li key={line.id} className="surface-card rise-in flex gap-3 p-3">
-                  <Link to="/product/$productId" params={{ productId: product.id }} className="shrink-0">
+                  <Link
+                    to="/product/$productId"
+                    params={{ productId: product.id }}
+                    className="shrink-0"
+                  >
                     <img
                       src={product.image}
                       alt={product.name}
@@ -91,7 +103,9 @@ function CartPage() {
                           <Plus className="h-3.5 w-3.5" />
                         </button>
                       </div>
-                      <span className="font-display font-bold">{formatPrice(product.price * line.qty)}</span>
+                      <span className="font-display font-bold">
+                        {formatPrice(product.price * line.qty)}
+                      </span>
                     </div>
                   </div>
                 </li>
@@ -110,7 +124,9 @@ function CartPage() {
             </div>
             <div className="flex justify-between border-t border-border pt-3">
               <span className="font-semibold">Total</span>
-              <span className="font-display text-xl font-bold">{formatPrice(subtotal + shipping)}</span>
+              <span className="font-display text-xl font-bold">
+                {formatPrice(subtotal + shipping)}
+              </span>
             </div>
             <button
               type="button"

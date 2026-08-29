@@ -1,13 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, ShoppingBag, User, Users } from "lucide-react";
+import { Home, Lock, ShoppingBag, User, Users } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { to: "/", label: "Home", icon: Home },
-  { to: "/men", label: "Men", icon: User },
-  { to: "/women", label: "Women", icon: Users },
-  { to: "/cart", label: "Bag", icon: ShoppingBag },
+  { to: "/", label: "Home", icon: Home, locked: false },
+  { to: "/men", label: "Men", icon: User, locked: true },
+  { to: "/women", label: "Women", icon: Users, locked: false },
+  { to: "/cart", label: "Bag", icon: ShoppingBag, locked: false },
 ] as const;
 
 export function BottomNav() {
@@ -17,8 +17,26 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
       <ul className="grid grid-cols-4">
-        {items.map(({ to, label, icon: Icon }) => {
+        {items.map(({ to, label, icon: Icon, locked }) => {
           const active = to === "/" ? pathname === "/" : pathname.startsWith(to);
+
+          if (locked) {
+            return (
+              <li key={to}>
+                <span
+                  aria-disabled="true"
+                  className="press relative flex h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium text-muted-foreground/40"
+                >
+                  <span className="relative">
+                    <Icon className="h-5 w-5" />
+                    <Lock className="absolute -right-1.5 -top-1.5 h-3 w-3 rounded-full bg-background p-0.5" />
+                  </span>
+                  {label}
+                </span>
+              </li>
+            );
+          }
+
           return (
             <li key={to}>
               <Link

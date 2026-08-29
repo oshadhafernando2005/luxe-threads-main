@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ShoppingBag } from "lucide-react";
+import { Lock, ShoppingBag } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
 
@@ -8,8 +8,8 @@ export function SiteHeader() {
   const { count } = useCart();
 
   const links = [
-    { to: "/men", label: "Men" },
-    { to: "/women", label: "Women" },
+    { to: "/men", label: "Men", locked: true },
+    { to: "/women", label: "Women", locked: false },
   ] as const;
 
   return (
@@ -17,21 +17,32 @@ export function SiteHeader() {
       <div className="mx-auto grid max-w-6xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3.5 sm:px-6">
         <div className="flex min-w-0 items-center gap-8">
           <Link to="/" className="font-display text-xl font-extrabold tracking-tight">
-            LUMEN<span className="text-coral">.</span>
+            WEST CORE<span className="text-coral">.</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-            {links.map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={cn(
-                  "transition-colors hover:text-coral",
-                  pathname.startsWith(l.to) ? "text-coral" : "text-muted-foreground",
-                )}
-              >
-                {l.label}
-              </Link>
-            ))}
+            {links.map((l) =>
+              l.locked ? (
+                <span
+                  key={l.to}
+                  aria-disabled="true"
+                  className="inline-flex cursor-not-allowed items-center gap-1.5 text-muted-foreground/50"
+                >
+                  {l.label}
+                  <Lock className="h-3.5 w-3.5" />
+                </span>
+              ) : (
+                <Link
+                  key={l.to}
+                  to={l.to}
+                  className={cn(
+                    "transition-colors hover:text-coral",
+                    pathname.startsWith(l.to) ? "text-coral" : "text-muted-foreground",
+                  )}
+                >
+                  {l.label}
+                </Link>
+              ),
+            )}
           </nav>
         </div>
         <Link
