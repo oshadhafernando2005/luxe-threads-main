@@ -1,0 +1,55 @@
+diff --git a/src/lib/products.ts b/src/lib/products.ts
+index 0df582a..ad1a353 100644
+--- a/src/lib/products.ts
++++ b/src/lib/products.ts
+@@ -8,6 +8,15 @@ import w3 from "@/assets/w3.jpg";
+ import w4 from "@/assets/w4.png";
+ import w4p from "@/assets/w4p.png";
+ import w4s from "@/assets/w4s.jpeg";
++import w6 from "@/assets/w6.png";
++import w6b from "@/assets/w6b.jpeg";
++import w6p from "@/assets/w6p.jpeg";
++import m7 from "@/assets/m7.png";
++import m7b from "@/assets/m7b.jpeg";
++import m7p from "@/assets/m7p.jpeg";
++import w1f4 from "@/assets/w1.jpeg";
++import wb from "@/assets/wb.jpeg";
++import wp from "@/assets/wp.jpeg";
+ 
+ 
+ export type Gender = "men" | "women";
+@@ -22,6 +31,7 @@ export type Product = {
+   sizes: string[];
+   image: string;
+   images?: Record<string, string>;
++  stickerImages?: Record<string, Record<string, string>>;
+   description: string;
+   popularity: number;
+   createdAt: number;
+@@ -156,6 +166,12 @@ export const products: Product[] = [
+       Pink: w4p,
+       Blue: w4s,
+     },
++    stickerImages: {
++      "/stickers/f1.png": { White: w4, Blue: w4s, Pink: w4p },
++      "/stickers/f2.png": { White: w6, Blue: w6b, Pink: w6p },
++      "/stickers/f3.jpeg": { White: m7, Blue: m7b, Pink: m7p },
++      "/stickers/f4.png": { White: w1f4, Blue: wb, Pink: wp },
++    },
+     description:
+       "Deep black, generously cut, with a soft drape that falls past the hip. The quiet centrepiece of the collection.",
+     popularity: 91,
+diff --git a/src/routes/product.$productId.tsx b/src/routes/product.$productId.tsx
+index 5fc7652..c2e14df 100644
+--- a/src/routes/product.$productId.tsx
++++ b/src/routes/product.$productId.tsx
+@@ -36,7 +36,8 @@ function ProductPage() {
+   const [color, setColor] = useState(product.colors[0] ?? "Black");
+   const hasStickers = !!product.stickers && product.stickers.length > 0;
+   const [sticker, setSticker] = useState(hasStickers ? product.stickers![0] : undefined);
+-  const displayImage = product.images?.[color] ?? product.image;
++  const displayImage =
++    (sticker && product.stickerImages?.[sticker]?.[color]) ?? product.images?.[color] ?? product.image;
+ 
+   return (
+     <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">

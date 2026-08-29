@@ -8,6 +8,15 @@ import w3 from "@/assets/w3.jpg";
 import w4 from "@/assets/w4.png";
 import w4p from "@/assets/w4p.png";
 import w4s from "@/assets/w4s.jpeg";
+import w6 from "@/assets/w6.png";
+import w6b from "@/assets/w6b.jpeg";
+import w6p from "@/assets/w6p.jpeg";
+import m7 from "@/assets/m7.png";
+import m7b from "@/assets/m7b.jpeg";
+import m7p from "@/assets/m7p.jpeg";
+import w1f4 from "@/assets/w1.jpeg";
+import wb from "@/assets/wb.jpeg";
+import wp from "@/assets/wp.jpeg";
 
 
 export type Gender = "men" | "women";
@@ -22,6 +31,7 @@ export type Product = {
   sizes: string[];
   image: string;
   images?: Record<string, string>;
+  stickerImages?: Record<string, Record<string, string>>;
   description: string;
   popularity: number;
   createdAt: number;
@@ -156,11 +166,17 @@ export const products: Product[] = [
       Pink: w4p,
       Blue: w4s,
     },
+    stickerImages: {
+      "/stickers/f1.png": { White: w4, Blue: w4s, Pink: w4p },
+      "/stickers/f2.png": { White: w6, Blue: w6b, Pink: w6p },
+      "/stickers/f3.jpeg": { White: m7, Blue: m7b, Pink: m7p },
+      "/stickers/f4.jpeg": { White: w1f4, Blue: wb, Pink: wp },
+    },
     description:
       "Deep black, generously cut, with a soft drape that falls past the hip. The quiet centrepiece of the collection.",
     popularity: 91,
     createdAt: 8,
-    stickers: ["/stickers/f1.png", "/stickers/f2.png", "/stickers/f3.jpeg", "/stickers/f4.png"],
+    stickers: ["/stickers/f1.png", "/stickers/f2.png", "/stickers/f3.jpeg", "/stickers/f4.jpeg"],
   },
 ];
 

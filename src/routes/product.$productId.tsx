@@ -36,7 +36,8 @@ function ProductPage() {
   const [color, setColor] = useState(product.colors[0] ?? "Black");
   const hasStickers = !!product.stickers && product.stickers.length > 0;
   const [sticker, setSticker] = useState(hasStickers ? product.stickers![0] : undefined);
-  const displayImage = product.images?.[color] ?? product.image;
+  const displayImage =
+    (sticker && product.stickerImages?.[sticker]?.[color]) ?? product.images?.[color] ?? product.image;
 
   return (
     <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
