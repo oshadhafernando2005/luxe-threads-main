@@ -155,7 +155,7 @@ export const products: Product[] = [
   {
     id: "noir-oversized",
     name: "Summer Cropped T-Shirt",
-    price: 2500,
+    price: 70,
     gender: "women",
     category: "Crop",
     colors: [ "White", "Blue","Pink"],
