@@ -51,7 +51,7 @@ function ProductPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
       <div className="lg:grid lg:grid-cols-2 lg:gap-10">
-        <div className="rise-in relative overflow-hidden rounded-3xl bg-secondary">
+        <div className="rise-in sticky top-20 z-10 overflow-hidden rounded-3xl bg-secondary shadow-soft lg:static lg:top-auto lg:z-auto lg:shadow-none">
           <img
             src={displayImage}
             alt={product.name}
