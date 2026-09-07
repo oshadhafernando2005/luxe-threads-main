@@ -17,7 +17,7 @@ export const Route = createFileRoute("/privacy")({
 const sections = [
   {
     title: "1. Information we collect",
-    body: "When you browse West Core or place an order, we may collect information you give us directly — such as your name, email address, shipping address, and payment details — as well as information collected automatically, like your device type, browser, and how you interact with our site (pages viewed, items added to your bag).",
+    body: "When you browse West Core or place an order, we may collect information you give us directly — such as your name, email address, and shipping address — as well as information collected automatically, like your device type, browser, and how you interact with our site (pages viewed, items added to your bag). Payments are processed directly by PayHere, our payment gateway; we do not collect or store your card details on our servers.",
   },
   {
     title: "2. How we use your information",
@@ -29,7 +29,7 @@ const sections = [
   },
   {
     title: "4. Sharing your information",
-    body: "We share information only with the service providers who help us run our business — such as payment processors and shipping carriers — and only to the extent needed for them to provide that service. We require these providers to protect your data and use it only for the purpose we've engaged them for.",
+    body: "We share information only with the service providers who help us run our business — such as PayHere, who processes payments on our behalf, and our shipping carriers — and only to the extent needed for them to provide that service. We require these providers to protect your data and use it only for the purpose we've engaged them for.",
   },
   {
     title: "5. Data retention",
@@ -71,8 +71,8 @@ function PrivacyPage() {
         <h2 className="font-semibold">Contact us</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           If you have questions about this policy or how we handle your data, reach us at{" "}
-          <a href="mailto:hello@westcore.com" className="font-medium text-coral">
-            hello@westcore.com
+          <a href="mailto:info@westcore.shop" className="font-medium text-coral">
+            info@westcore.shop
           </a>{" "}
           or visit our{" "}
           <Link to="/contact" className="font-medium text-coral">

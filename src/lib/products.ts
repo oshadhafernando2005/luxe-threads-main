@@ -18,7 +18,6 @@ import w1f4 from "@/assets/w1.jpeg";
 import wb from "@/assets/wb.jpeg";
 import wp from "@/assets/wp.jpeg";
 
-
 export type Gender = "men" | "women";
 
 export type Product = {
@@ -46,7 +45,7 @@ export const COLOR_SWATCHES: Record<string, string> = {
   Coral: "oklch(0.68 0.18 30)",
   Pink: "oklch(0.85 0.08 10)",
   Emerald: "oklch(0.55 0.14 160)",
-  Blue:"oklch(0.888 0.049 223)"
+  Blue: "oklch(0.888 0.049 223)",
 };
 
 export const CATEGORIES = ["Oversized", "Essential", "Graphic", "Crop"] as const;
@@ -56,7 +55,7 @@ export const products: Product[] = [
   {
     id: "atlas-oversized-black",
     name: "Atlas Oversized Tee",
-    price: 68,
+    price: 2500,
     gender: "men",
     category: "Oversized",
     colors: ["Black", "Sand", "White"],
@@ -70,7 +69,7 @@ export const products: Product[] = [
   {
     id: "cobalt-essential",
     name: "Cobalt Essential Tee",
-    price: 52,
+    price: 2500,
     gender: "men",
     category: "Essential",
     colors: ["Cobalt", "Black", "White"],
@@ -84,7 +83,7 @@ export const products: Product[] = [
   {
     id: "dune-heavyweight",
     name: "Dune Heavyweight Tee",
-    price: 74,
+    price: 2500,
     gender: "men",
     category: "Graphic",
     colors: ["Sand", "White"],
@@ -98,7 +97,7 @@ export const products: Product[] = [
   {
     id: "ember-coral",
     name: "Ember Coral Tee",
-    price: 58,
+    price: 2500,
     gender: "men",
     category: "Essential",
     colors: ["Coral", "White"],
@@ -112,7 +111,7 @@ export const products: Product[] = [
   {
     id: "ivory-crop",
     name: "Ivory Crop Tee",
-    price: 56,
+    price: 2500,
     gender: "women",
     category: "Crop",
     colors: ["White", "Pink"],
@@ -126,7 +125,7 @@ export const products: Product[] = [
   {
     id: "blush-relaxed",
     name: "Blush Relaxed Tee",
-    price: 54,
+    price: 2500,
     gender: "women",
     category: "Essential",
     colors: ["Pink", "White", "Sand"],
@@ -140,7 +139,7 @@ export const products: Product[] = [
   {
     id: "verde-fitted",
     name: "Verde Fitted Tee",
-    price: 62,
+    price: 2500,
     gender: "women",
     category: "Essential",
     colors: ["Emerald", "Black"],
@@ -155,11 +154,11 @@ export const products: Product[] = [
   {
     id: "noir-oversized",
     name: "Summer Cropped T-Shirt",
-    price: 25,
+    price: 2500,
     gender: "women",
     category: "Crop",
-    colors: [ "White", "Blue","Pink"],
-    sizes: ["XS", "S", "M",],
+    colors: ["White", "Blue", "Pink"],
+    sizes: ["XS", "S", "M"],
     image: w4,
     images: {
       White: w4,
@@ -182,5 +181,4 @@ export const products: Product[] = [
 
 export const getProduct = (id: string) => products.find((p) => p.id === id);
 
-export const formatPrice = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
+export const formatPrice = (n: number) => `Rs. ${new Intl.NumberFormat("en-LK").format(n)}`;

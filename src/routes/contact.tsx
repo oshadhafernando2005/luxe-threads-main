@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Instagram, Mail, MapPin, Phone, Twitter, Youtube } from "lucide-react";
+import { Instagram, Mail, MapPin, Phone } from "lucide-react";
 import { toast } from "sonner";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -18,9 +19,14 @@ export const Route = createFileRoute("/contact")({
 });
 
 const info = [
-  { icon: Mail, label: "hello@westcore.com", href: "mailto:hello@westcore.com" },
-  { icon: Phone, label: "+1 (415) 555-0134", href: "tel:+14155550134" },
+  { icon: Mail, label: "info@westcore.shop", href: "mailto:info@westcore.shop" },
+  { icon: Phone, label: "078 574 2630", href: "tel:+94785742630" },
   { icon: MapPin, label: "Studio by appointment only" },
+];
+
+const socials = [
+  { icon: Instagram, href: "https://www.instagram.com/westcore.shop/", label: "Instagram" },
+  { icon: TikTokIcon, href: "https://www.tiktok.com/@westcore.shop", label: "TikTok" },
 ];
 
 function ContactPage() {
@@ -68,11 +74,11 @@ function ContactPage() {
           </div>
 
           <div className="mt-4 flex gap-2">
-            {[Instagram, Twitter, Youtube].map((Icon, i) => (
+            {socials.map(({ icon: Icon, href, label }) => (
               <a
-                key={i}
-                href="https://instagram.com"
-                aria-label="Social profile"
+                key={label}
+                href={href}
+                aria-label={label}
                 className="press grid h-10 w-10 place-items-center rounded-full bg-secondary"
               >
                 <Icon className="h-4 w-4" />

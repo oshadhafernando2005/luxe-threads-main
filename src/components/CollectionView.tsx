@@ -60,13 +60,13 @@ export function CollectionView({
   const [categories, setCategories] = useState<string[]>([]);
   const [sizes, setSizes] = useState<string[]>([]);
   const [colors, setColors] = useState<string[]>([]);
-  const [maxPrice, setMaxPrice] = useState(80);
+  const [maxPrice, setMaxPrice] = useState(5000);
   const [sort, setSort] = useState<Sort>("newest");
 
   const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
-  const activeCount = categories.length + sizes.length + colors.length + (maxPrice < 80 ? 1 : 0);
+  const activeCount = categories.length + sizes.length + colors.length + (maxPrice < 5000 ? 1 : 0);
 
   const list = useMemo(() => {
     const filtered = products.filter(
@@ -91,7 +91,7 @@ export function CollectionView({
     setCategories([]);
     setSizes([]);
     setColors([]);
-    setMaxPrice(80);
+    setMaxPrice(5000);
     setSort("newest");
   };
 
@@ -196,10 +196,10 @@ export function CollectionView({
                 </div>
                 <Slider
                   value={[maxPrice]}
-                  onValueChange={(v) => setMaxPrice(v[0] ?? 80)}
-                  min={40}
-                  max={80}
-                  step={2}
+                  onValueChange={(v) => setMaxPrice(v[0] ?? 5000)}
+                  min={2000}
+                  max={5000}
+                  step={100}
                 />
               </div>
 

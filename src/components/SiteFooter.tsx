@@ -1,5 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { Instagram, Lock, Mail, Phone, Twitter, Youtube } from "lucide-react";
+import { Instagram, Lock, Mail, Phone } from "lucide-react";
+import { TikTokIcon } from "@/components/icons/TikTokIcon";
+
+const SOCIALS = [
+  { icon: Instagram, href: "https://www.instagram.com/westcore.shop/", label: "Instagram" },
+  { icon: TikTokIcon, href: "https://www.tiktok.com/@westcore.shop", label: "TikTok" },
+];
 
 export function SiteFooter() {
   return (
@@ -43,18 +49,18 @@ export function SiteFooter() {
             <p className="font-semibold">Contact</p>
             <ul className="mt-3 space-y-2 text-muted-foreground">
               <li className="flex items-center gap-2">
-                <Mail className="h-4 w-4 shrink-0" /> hello@westcore.com
+                <Mail className="h-4 w-4 shrink-0" /> info@westcore.shop
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-4 w-4 shrink-0" /> +1 (415) 555-0134
+                <Phone className="h-4 w-4 shrink-0" /> 078 574 2630
               </li>
             </ul>
             <div className="mt-4 flex gap-2">
-              {[Instagram, Twitter, Youtube].map((Icon, i) => (
+              {SOCIALS.map(({ icon: Icon, href, label }) => (
                 <a
-                  key={i}
-                  href="https://instagram.com"
-                  aria-label="Social profile"
+                  key={label}
+                  href={href}
+                  aria-label={label}
                   className="press grid h-10 w-10 place-items-center rounded-full bg-card"
                 >
                   <Icon className="h-4 w-4" />

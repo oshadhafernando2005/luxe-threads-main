@@ -1,0 +1,299 @@
+diff --git a/src/components/CollectionView.tsx b/src/components/CollectionView.tsx
+index 3ec0ff6..01a7430 100644
+--- a/src/components/CollectionView.tsx
++++ b/src/components/CollectionView.tsx
+@@ -60,13 +60,13 @@ export function CollectionView({
+   const [categories, setCategories] = useState<string[]>([]);
+   const [sizes, setSizes] = useState<string[]>([]);
+   const [colors, setColors] = useState<string[]>([]);
+-  const [maxPrice, setMaxPrice] = useState(80);
++  const [maxPrice, setMaxPrice] = useState(5000);
+   const [sort, setSort] = useState<Sort>("newest");
+ 
+   const toggle = (list: string[], set: (v: string[]) => void, value: string) =>
+     set(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+ 
+-  const activeCount = categories.length + sizes.length + colors.length + (maxPrice < 80 ? 1 : 0);
++  const activeCount = categories.length + sizes.length + colors.length + (maxPrice < 5000 ? 1 : 0);
+ 
+   const list = useMemo(() => {
+     const filtered = products.filter(
+@@ -91,7 +91,7 @@ export function CollectionView({
+     setCategories([]);
+     setSizes([]);
+     setColors([]);
+-    setMaxPrice(80);
++    setMaxPrice(5000);
+     setSort("newest");
+   };
+ 
+@@ -196,10 +196,10 @@ export function CollectionView({
+                 </div>
+                 <Slider
+                   value={[maxPrice]}
+-                  onValueChange={(v) => setMaxPrice(v[0] ?? 80)}
+-                  min={40}
+-                  max={80}
+-                  step={2}
++                  onValueChange={(v) => setMaxPrice(v[0] ?? 5000)}
++                  min={2000}
++                  max={5000}
++                  step={100}
+                 />
+               </div>
+ 
+diff --git a/src/components/SiteFooter.tsx b/src/components/SiteFooter.tsx
+index cd86405..da7db02 100644
+--- a/src/components/SiteFooter.tsx
++++ b/src/components/SiteFooter.tsx
+@@ -1,5 +1,11 @@
+ import { Link } from "@tanstack/react-router";
+-import { Instagram, Lock, Mail, Phone, Twitter, Youtube } from "lucide-react";
++import { Instagram, Lock, Mail, Phone } from "lucide-react";
++import { TikTokIcon } from "@/components/icons/TikTokIcon";
++
++const SOCIALS = [
++  { icon: Instagram, href: "https://www.instagram.com/westcore.shop/", label: "Instagram" },
++  { icon: TikTokIcon, href: "https://www.tiktok.com/@westcore.shop", label: "TikTok" },
++];
+ 
+ export function SiteFooter() {
+   return (
+@@ -43,18 +49,18 @@ export function SiteFooter() {
+             <p className="font-semibold">Contact</p>
+             <ul className="mt-3 space-y-2 text-muted-foreground">
+               <li className="flex items-center gap-2">
+-                <Mail className="h-4 w-4 shrink-0" /> hello@westcore.com
++                <Mail className="h-4 w-4 shrink-0" /> info@westcore.shop
+               </li>
+               <li className="flex items-center gap-2">
+-                <Phone className="h-4 w-4 shrink-0" /> +1 (415) 555-0134
++                <Phone className="h-4 w-4 shrink-0" /> 078 574 2630
+               </li>
+             </ul>
+             <div className="mt-4 flex gap-2">
+-              {[Instagram, Twitter, Youtube].map((Icon, i) => (
++              {SOCIALS.map(({ icon: Icon, href, label }) => (
+                 <a
+-                  key={i}
+-                  href="https://instagram.com"
+-                  aria-label="Social profile"
++                  key={label}
++                  href={href}
++                  aria-label={label}
+                   className="press grid h-10 w-10 place-items-center rounded-full bg-card"
+                 >
+                   <Icon className="h-4 w-4" />
+diff --git a/src/components/icons/TikTokIcon.tsx b/src/components/icons/TikTokIcon.tsx
+new file mode 100644
+index 0000000..2f06aaf
+--- /dev/null
++++ b/src/components/icons/TikTokIcon.tsx
+@@ -0,0 +1,18 @@
++import type { SVGProps } from "react";
++
++export function TikTokIcon(props: SVGProps<SVGSVGElement>) {
++  return (
++    <svg
++      viewBox="0 0 24 24"
++      fill="none"
++      stroke="currentColor"
++      strokeWidth={2}
++      strokeLinecap="round"
++      strokeLinejoin="round"
++      xmlns="http://www.w3.org/2000/svg"
++      {...props}
++    >
++      <path d="M9 12a4 4 0 1 0 4 4V2a5 5 0 0 0 5 5" />
++    </svg>
++  );
++}
+diff --git a/src/lib/products.ts b/src/lib/products.ts
+index a2c6173..676b1f2 100644
+--- a/src/lib/products.ts
++++ b/src/lib/products.ts
+@@ -18,7 +18,6 @@ import w1f4 from "@/assets/w1.jpeg";
+ import wb from "@/assets/wb.jpeg";
+ import wp from "@/assets/wp.jpeg";
+ 
+-
+ export type Gender = "men" | "women";
+ 
+ export type Product = {
+@@ -46,7 +45,7 @@ export const COLOR_SWATCHES: Record<string, string> = {
+   Coral: "oklch(0.68 0.18 30)",
+   Pink: "oklch(0.85 0.08 10)",
+   Emerald: "oklch(0.55 0.14 160)",
+-  Blue:"oklch(0.888 0.049 223)"
++  Blue: "oklch(0.888 0.049 223)",
+ };
+ 
+ export const CATEGORIES = ["Oversized", "Essential", "Graphic", "Crop"] as const;
+@@ -56,7 +55,7 @@ export const products: Product[] = [
+   {
+     id: "atlas-oversized-black",
+     name: "Atlas Oversized Tee",
+-    price: 68,
++    price: 2500,
+     gender: "men",
+     category: "Oversized",
+     colors: ["Black", "Sand", "White"],
+@@ -70,7 +69,7 @@ export const products: Product[] = [
+   {
+     id: "cobalt-essential",
+     name: "Cobalt Essential Tee",
+-    price: 52,
++    price: 2500,
+     gender: "men",
+     category: "Essential",
+     colors: ["Cobalt", "Black", "White"],
+@@ -84,7 +83,7 @@ export const products: Product[] = [
+   {
+     id: "dune-heavyweight",
+     name: "Dune Heavyweight Tee",
+-    price: 74,
++    price: 2500,
+     gender: "men",
+     category: "Graphic",
+     colors: ["Sand", "White"],
+@@ -98,7 +97,7 @@ export const products: Product[] = [
+   {
+     id: "ember-coral",
+     name: "Ember Coral Tee",
+-    price: 58,
++    price: 2500,
+     gender: "men",
+     category: "Essential",
+     colors: ["Coral", "White"],
+@@ -112,7 +111,7 @@ export const products: Product[] = [
+   {
+     id: "ivory-crop",
+     name: "Ivory Crop Tee",
+-    price: 56,
++    price: 2500,
+     gender: "women",
+     category: "Crop",
+     colors: ["White", "Pink"],
+@@ -126,7 +125,7 @@ export const products: Product[] = [
+   {
+     id: "blush-relaxed",
+     name: "Blush Relaxed Tee",
+-    price: 54,
++    price: 2500,
+     gender: "women",
+     category: "Essential",
+     colors: ["Pink", "White", "Sand"],
+@@ -140,7 +139,7 @@ export const products: Product[] = [
+   {
+     id: "verde-fitted",
+     name: "Verde Fitted Tee",
+-    price: 62,
++    price: 2500,
+     gender: "women",
+     category: "Essential",
+     colors: ["Emerald", "Black"],
+@@ -155,11 +154,11 @@ export const products: Product[] = [
+   {
+     id: "noir-oversized",
+     name: "Summer Cropped T-Shirt",
+-    price: 25,
++    price: 2500,
+     gender: "women",
+     category: "Crop",
+-    colors: [ "White", "Blue","Pink"],
+-    sizes: ["XS", "S", "M",],
++    colors: ["White", "Blue", "Pink"],
++    sizes: ["XS", "S", "M"],
+     image: w4,
+     images: {
+       White: w4,
+@@ -182,5 +181,4 @@ export const products: Product[] = [
+ 
+ export const getProduct = (id: string) => products.find((p) => p.id === id);
+ 
+-export const formatPrice = (n: number) =>
+-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(n);
+\ No newline at end of file
++export const formatPrice = (n: number) => `Rs. ${new Intl.NumberFormat("en-LK").format(n)}`;
+diff --git a/src/routes/contact.tsx b/src/routes/contact.tsx
+index 32f9e8d..9000ada 100644
+--- a/src/routes/contact.tsx
++++ b/src/routes/contact.tsx
+@@ -1,7 +1,8 @@
+ import { useState, type FormEvent } from "react";
+ import { createFileRoute } from "@tanstack/react-router";
+-import { Instagram, Mail, MapPin, Phone, Twitter, Youtube } from "lucide-react";
++import { Instagram, Mail, MapPin, Phone } from "lucide-react";
+ import { toast } from "sonner";
++import { TikTokIcon } from "@/components/icons/TikTokIcon";
+ 
+ export const Route = createFileRoute("/contact")({
+   head: () => ({
+@@ -18,11 +19,16 @@ export const Route = createFileRoute("/contact")({
+ });
+ 
+ const info = [
+-  { icon: Mail, label: "hello@westcore.com", href: "mailto:hello@westcore.com" },
+-  { icon: Phone, label: "+1 (415) 555-0134", href: "tel:+14155550134" },
++  { icon: Mail, label: "info@westcore.shop", href: "mailto:info@westcore.shop" },
++  { icon: Phone, label: "078 574 2630", href: "tel:+94785742630" },
+   { icon: MapPin, label: "Studio by appointment only" },
+ ];
+ 
++const socials = [
++  { icon: Instagram, href: "https://www.instagram.com/westcore.shop/", label: "Instagram" },
++  { icon: TikTokIcon, href: "https://www.tiktok.com/@westcore.shop", label: "TikTok" },
++];
++
+ function ContactPage() {
+   const [submitting, setSubmitting] = useState(false);
+ 
+@@ -68,11 +74,11 @@ function ContactPage() {
+           </div>
+ 
+           <div className="mt-4 flex gap-2">
+-            {[Instagram, Twitter, Youtube].map((Icon, i) => (
++            {socials.map(({ icon: Icon, href, label }) => (
+               <a
+-                key={i}
+-                href="https://instagram.com"
+-                aria-label="Social profile"
++                key={label}
++                href={href}
++                aria-label={label}
+                 className="press grid h-10 w-10 place-items-center rounded-full bg-secondary"
+               >
+                 <Icon className="h-4 w-4" />
+diff --git a/src/routes/privacy.tsx b/src/routes/privacy.tsx
+index 446ba2f..4962615 100644
+--- a/src/routes/privacy.tsx
++++ b/src/routes/privacy.tsx
+@@ -17,7 +17,7 @@ export const Route = createFileRoute("/privacy")({
+ const sections = [
+   {
+     title: "1. Information we collect",
+-    body: "When you browse West Core or place an order, we may collect information you give us directly — such as your name, email address, shipping address, and payment details — as well as information collected automatically, like your device type, browser, and how you interact with our site (pages viewed, items added to your bag).",
++    body: "When you browse West Core or place an order, we may collect information you give us directly — such as your name, email address, and shipping address — as well as information collected automatically, like your device type, browser, and how you interact with our site (pages viewed, items added to your bag). Payments are processed directly by PayHere, our payment gateway; we do not collect or store your card details on our servers.",
+   },
+   {
+     title: "2. How we use your information",
+@@ -29,7 +29,7 @@ const sections = [
+   },
+   {
+     title: "4. Sharing your information",
+-    body: "We share information only with the service providers who help us run our business — such as payment processors and shipping carriers — and only to the extent needed for them to provide that service. We require these providers to protect your data and use it only for the purpose we've engaged them for.",
++    body: "We share information only with the service providers who help us run our business — such as PayHere, who processes payments on our behalf, and our shipping carriers — and only to the extent needed for them to provide that service. We require these providers to protect your data and use it only for the purpose we've engaged them for.",
+   },
+   {
+     title: "5. Data retention",
+@@ -71,8 +71,8 @@ function PrivacyPage() {
+         <h2 className="font-semibold">Contact us</h2>
+         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+           If you have questions about this policy or how we handle your data, reach us at{" "}
+-          <a href="mailto:hello@westcore.com" className="font-medium text-coral">
+-            hello@westcore.com
++          <a href="mailto:info@westcore.shop" className="font-medium text-coral">
++            info@westcore.shop
+           </a>{" "}
+           or visit our{" "}
+           <Link to="/contact" className="font-medium text-coral">
