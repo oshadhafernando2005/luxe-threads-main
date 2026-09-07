@@ -1,0 +1,569 @@
+diff --git a/src/components/SiteFooter.tsx b/src/components/SiteFooter.tsx
+index 540b3ac..cd86405 100644
+--- a/src/components/SiteFooter.tsx
++++ b/src/components/SiteFooter.tsx
+@@ -31,6 +31,11 @@ export function SiteFooter() {
+                   Your Bag
+                 </Link>
+               </li>
++              <li>
++                <Link to="/about" className="hover:text-coral">
++                  About Us
++                </Link>
++              </li>
+             </ul>
+           </div>
+ 
+@@ -59,9 +64,20 @@ export function SiteFooter() {
+           </div>
+         </div>
+ 
+-        <p className="mt-10 text-xs text-muted-foreground">
+-          © {new Date().getFullYear()} West Core. All rights reserved.
+-        </p>
++        <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
++          <p>© {new Date().getFullYear()} West Core. All rights reserved.</p>
++          <div className="flex gap-4">
++            <Link to="/about" className="hover:text-coral">
++              About
++            </Link>
++            <Link to="/privacy" className="hover:text-coral">
++              Privacy Policy
++            </Link>
++            <Link to="/contact" className="hover:text-coral">
++              Contact
++            </Link>
++          </div>
++        </div>
+       </div>
+     </footer>
+   );
+diff --git a/src/routeTree.gen.ts b/src/routeTree.gen.ts
+index 8ccd009..8f1f8c1 100644
+--- a/src/routeTree.gen.ts
++++ b/src/routeTree.gen.ts
+@@ -10,8 +10,11 @@
+ 
+ import { Route as rootRouteImport } from './routes/__root'
+ import { Route as IndexRouteImport } from './routes/index'
++import { Route as AboutRouteImport } from './routes/about'
+ import { Route as CartRouteImport } from './routes/cart'
++import { Route as ContactRouteImport } from './routes/contact'
+ import { Route as MenRouteImport } from './routes/men'
++import { Route as PrivacyRouteImport } from './routes/privacy'
+ import { Route as WomenRouteImport } from './routes/women'
+ import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
+ 
+@@ -20,16 +23,31 @@ const IndexRoute = IndexRouteImport.update({
+   path: '/',
+   getParentRoute: () => rootRouteImport,
+ } as any)
++const AboutRoute = AboutRouteImport.update({
++  id: '/about',
++  path: '/about',
++  getParentRoute: () => rootRouteImport,
++} as any)
+ const CartRoute = CartRouteImport.update({
+   id: '/cart',
+   path: '/cart',
+   getParentRoute: () => rootRouteImport,
+ } as any)
++const ContactRoute = ContactRouteImport.update({
++  id: '/contact',
++  path: '/contact',
++  getParentRoute: () => rootRouteImport,
++} as any)
+ const MenRoute = MenRouteImport.update({
+   id: '/men',
+   path: '/men',
+   getParentRoute: () => rootRouteImport,
+ } as any)
++const PrivacyRoute = PrivacyRouteImport.update({
++  id: '/privacy',
++  path: '/privacy',
++  getParentRoute: () => rootRouteImport,
++} as any)
+ const WomenRoute = WomenRouteImport.update({
+   id: '/women',
+   path: '/women',
+@@ -43,38 +61,75 @@ const ProductProductIdRoute = ProductProductIdRouteImport.update({
+ 
+ export interface FileRoutesByFullPath {
+   '/': typeof IndexRoute
++  '/about': typeof AboutRoute
+   '/cart': typeof CartRoute
++  '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
++  '/privacy': typeof PrivacyRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+ export interface FileRoutesByTo {
+   '/': typeof IndexRoute
++  '/about': typeof AboutRoute
+   '/cart': typeof CartRoute
++  '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
++  '/privacy': typeof PrivacyRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+ export interface FileRoutesById {
+   __root__: typeof rootRouteImport
+   '/': typeof IndexRoute
++  '/about': typeof AboutRoute
+   '/cart': typeof CartRoute
++  '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
++  '/privacy': typeof PrivacyRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+ export interface FileRouteTypes {
+   fileRoutesByFullPath: FileRoutesByFullPath
+-  fullPaths: '/' | '/cart' | '/men' | '/women' | '/product/$productId'
++  fullPaths:
++    | '/'
++    | '/about'
++    | '/cart'
++    | '/contact'
++    | '/men'
++    | '/privacy'
++    | '/women'
++    | '/product/$productId'
+   fileRoutesByTo: FileRoutesByTo
+-  to: '/' | '/cart' | '/men' | '/women' | '/product/$productId'
+-  id: '__root__' | '/' | '/cart' | '/men' | '/women' | '/product/$productId'
++  to:
++    | '/'
++    | '/about'
++    | '/cart'
++    | '/contact'
++    | '/men'
++    | '/privacy'
++    | '/women'
++    | '/product/$productId'
++  id:
++    | '__root__'
++    | '/'
++    | '/about'
++    | '/cart'
++    | '/contact'
++    | '/men'
++    | '/privacy'
++    | '/women'
++    | '/product/$productId'
+   fileRoutesById: FileRoutesById
+ }
+ export interface RootRouteChildren {
+   IndexRoute: typeof IndexRoute
++  AboutRoute: typeof AboutRoute
+   CartRoute: typeof CartRoute
++  ContactRoute: typeof ContactRoute
+   MenRoute: typeof MenRoute
++  PrivacyRoute: typeof PrivacyRoute
+   WomenRoute: typeof WomenRoute
+   ProductProductIdRoute: typeof ProductProductIdRoute
+ }
+@@ -88,6 +143,13 @@ declare module '@tanstack/react-router' {
+       preLoaderRoute: typeof IndexRouteImport
+       parentRoute: typeof rootRouteImport
+     }
++    '/about': {
++      id: '/about'
++      path: '/about'
++      fullPath: '/about'
++      preLoaderRoute: typeof AboutRouteImport
++      parentRoute: typeof rootRouteImport
++    }
+     '/cart': {
+       id: '/cart'
+       path: '/cart'
+@@ -95,6 +157,13 @@ declare module '@tanstack/react-router' {
+       preLoaderRoute: typeof CartRouteImport
+       parentRoute: typeof rootRouteImport
+     }
++    '/contact': {
++      id: '/contact'
++      path: '/contact'
++      fullPath: '/contact'
++      preLoaderRoute: typeof ContactRouteImport
++      parentRoute: typeof rootRouteImport
++    }
+     '/men': {
+       id: '/men'
+       path: '/men'
+@@ -102,6 +171,13 @@ declare module '@tanstack/react-router' {
+       preLoaderRoute: typeof MenRouteImport
+       parentRoute: typeof rootRouteImport
+     }
++    '/privacy': {
++      id: '/privacy'
++      path: '/privacy'
++      fullPath: '/privacy'
++      preLoaderRoute: typeof PrivacyRouteImport
++      parentRoute: typeof rootRouteImport
++    }
+     '/women': {
+       id: '/women'
+       path: '/women'
+@@ -121,8 +197,11 @@ declare module '@tanstack/react-router' {
+ 
+ const rootRouteChildren: RootRouteChildren = {
+   IndexRoute: IndexRoute,
++  AboutRoute: AboutRoute,
+   CartRoute: CartRoute,
++  ContactRoute: ContactRoute,
+   MenRoute: MenRoute,
++  PrivacyRoute: PrivacyRoute,
+   WomenRoute: WomenRoute,
+   ProductProductIdRoute: ProductProductIdRoute,
+ }
+diff --git a/src/routes/about.tsx b/src/routes/about.tsx
+new file mode 100644
+index 0000000..ce9e0c7
+--- /dev/null
++++ b/src/routes/about.tsx
+@@ -0,0 +1,106 @@
++import { createFileRoute, Link } from "@tanstack/react-router";
++import { ArrowRight, Leaf, Ruler, Sparkles } from "lucide-react";
++import heroImg from "@/assets/hero.jpg";
++
++export const Route = createFileRoute("/about")({
++  head: () => ({
++    meta: [
++      { title: "About Us | West Core" },
++      {
++        name: "description",
++        content:
++          "West Core makes small-batch, long-staple cotton t-shirts built to last. Learn about our story and materials.",
++      },
++      { property: "og:title", content: "About Us | West Core" },
++      {
++        property: "og:description",
++        content: "Small-batch premium t-shirts, made with long-staple cotton and a fit that holds.",
++      },
++    ],
++  }),
++  component: AboutPage,
++});
++
++const values = [
++  {
++    icon: Leaf,
++    title: "Considered materials",
++    body: "Every tee starts with long-staple cotton, garment-dyed in small batches so colour stays true wash after wash.",
++  },
++  {
++    icon: Ruler,
++    title: "A fit that holds",
++    body: "We obsess over pattern-making so the drape and shoulder line stay right — not just on day one, but a year in.",
++  },
++  {
++    icon: Sparkles,
++    title: "Small batches, less waste",
++    body: "We produce in limited runs instead of chasing volume, which means less overstock and fewer compromises on quality.",
++  },
++];
++
++function AboutPage() {
++  return (
++    <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
++      <section className="rise-in relative overflow-hidden rounded-3xl bg-secondary">
++        <img
++          src={heroImg}
++          alt="West Core t-shirts"
++          width={1408}
++          height={1008}
++          className="h-[42vh] min-h-[280px] w-full object-cover object-top sm:h-[48vh]"
++        />
++        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-5 pt-20 sm:p-10 sm:pt-28">
++          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Our story</p>
++          <h1 className="display-xl mt-2 max-w-xl text-3xl sm:text-5xl">
++            Built around one perfect tee.
++          </h1>
++        </div>
++      </section>
++
++      <section className="mt-10 max-w-2xl">
++        <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
++          West Core started with a simple frustration: most t-shirts are either cheap and shapeless,
++          or expensive for no reason you can feel. So we set out to make one thing well — a t-shirt
++          cut from proper cotton, finished carefully, and priced for what it actually costs to do
++          that right.
++        </p>
++        <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
++          We're a small team, and we release new pieces in limited runs rather than restocking
++          endlessly. It means some designs sell out — and that's on purpose. We'd rather make less,
++          and make it count.
++        </p>
++      </section>
++
++      <section className="mt-12">
++        <h2 className="display-xl text-2xl sm:text-3xl">What we care about</h2>
++        <div className="mt-6 grid gap-4 sm:grid-cols-3">
++          {values.map(({ icon: Icon, title, body }) => (
++            <div key={title} className="surface-card rounded-3xl p-5">
++              <span className="grid h-11 w-11 place-items-center rounded-full bg-secondary">
++                <Icon className="h-5 w-5" />
++              </span>
++              <h3 className="mt-4 font-semibold">{title}</h3>
++              <p className="mt-1.5 text-sm text-muted-foreground">{body}</p>
++            </div>
++          ))}
++        </div>
++      </section>
++
++      <section className="my-16 flex flex-col items-start gap-4 rounded-3xl bg-secondary p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
++        <div>
++          <h2 className="font-display text-xl font-extrabold sm:text-2xl">
++            Ready to see it for yourself?
++          </h2>
++          <p className="mt-1 text-sm text-muted-foreground">Shop the current women's collection.</p>
++        </div>
++        <Link
++          to="/women"
++          className="press inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
++        >
++          Shop now <ArrowRight className="h-4 w-4" />
++        </Link>
++      </section>
++    </div>
++  );
++}
+diff --git a/src/routes/contact.tsx b/src/routes/contact.tsx
+new file mode 100644
+index 0000000..32f9e8d
+--- /dev/null
++++ b/src/routes/contact.tsx
+@@ -0,0 +1,138 @@
++import { useState, type FormEvent } from "react";
++import { createFileRoute } from "@tanstack/react-router";
++import { Instagram, Mail, MapPin, Phone, Twitter, Youtube } from "lucide-react";
++import { toast } from "sonner";
++
++export const Route = createFileRoute("/contact")({
++  head: () => ({
++    meta: [
++      { title: "Contact Us | West Core" },
++      {
++        name: "description",
++        content: "Get in touch with the West Core team — orders, sizing, or anything else.",
++      },
++      { property: "og:title", content: "Contact Us | West Core" },
++    ],
++  }),
++  component: ContactPage,
++});
++
++const info = [
++  { icon: Mail, label: "hello@westcore.com", href: "mailto:hello@westcore.com" },
++  { icon: Phone, label: "+1 (415) 555-0134", href: "tel:+14155550134" },
++  { icon: MapPin, label: "Studio by appointment only" },
++];
++
++function ContactPage() {
++  const [submitting, setSubmitting] = useState(false);
++
++  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
++    e.preventDefault();
++    setSubmitting(true);
++    const form = e.currentTarget;
++
++    // Simulated submit — wire this up to your email/service of choice.
++    setTimeout(() => {
++      toast.success("Message sent — we'll get back to you soon.");
++      form.reset();
++      setSubmitting(false);
++    }, 600);
++  };
++
++  return (
++    <div className="mx-auto max-w-4xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
++      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Get in touch</p>
++      <h1 className="display-xl mt-2 text-3xl sm:text-4xl">Contact us</h1>
++      <p className="mt-3 max-w-md text-sm text-muted-foreground">
++        Questions about an order, sizing, or a wholesale enquiry? Send us a message and we'll reply
++        within one to two business days.
++      </p>
++
++      <div className="mt-10 grid gap-8 sm:grid-cols-[minmax(0,1fr)_1.3fr] sm:gap-10">
++        <div>
++          <div className="surface-card space-y-4 rounded-3xl p-5 sm:p-6">
++            {info.map(({ icon: Icon, label, href }) => (
++              <div key={label} className="flex items-center gap-3 text-sm">
++                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-secondary">
++                  <Icon className="h-4 w-4" />
++                </span>
++                {href ? (
++                  <a href={href} className="font-medium hover:text-coral">
++                    {label}
++                  </a>
++                ) : (
++                  <span className="font-medium">{label}</span>
++                )}
++              </div>
++            ))}
++          </div>
++
++          <div className="mt-4 flex gap-2">
++            {[Instagram, Twitter, Youtube].map((Icon, i) => (
++              <a
++                key={i}
++                href="https://instagram.com"
++                aria-label="Social profile"
++                className="press grid h-10 w-10 place-items-center rounded-full bg-secondary"
++              >
++                <Icon className="h-4 w-4" />
++              </a>
++            ))}
++          </div>
++        </div>
++
++        <form onSubmit={handleSubmit} className="surface-card space-y-4 rounded-3xl p-5 sm:p-6">
++          <div>
++            <label htmlFor="name" className="mb-1.5 block text-sm font-semibold">
++              Name
++            </label>
++            <input
++              id="name"
++              name="name"
++              type="text"
++              required
++              placeholder="Your name"
++              className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-coral"
++            />
++          </div>
++
++          <div>
++            <label htmlFor="email" className="mb-1.5 block text-sm font-semibold">
++              Email
++            </label>
++            <input
++              id="email"
++              name="email"
++              type="email"
++              required
++              placeholder="you@example.com"
++              className="h-12 w-full rounded-2xl border border-border bg-background px-4 text-sm outline-none focus:border-coral"
++            />
++          </div>
++
++          <div>
++            <label htmlFor="message" className="mb-1.5 block text-sm font-semibold">
++              Message
++            </label>
++            <textarea
++              id="message"
++              name="message"
++              required
++              rows={5}
++              placeholder="How can we help?"
++              className="w-full resize-none rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-coral"
++            />
++          </div>
++
++          <button
++            type="submit"
++            disabled={submitting}
++            className="press h-14 w-full rounded-full bg-coral text-sm font-semibold text-coral-foreground disabled:opacity-60"
++          >
++            {submitting ? "Sending…" : "Send message"}
++          </button>
++        </form>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/routes/privacy.tsx b/src/routes/privacy.tsx
+new file mode 100644
+index 0000000..446ba2f
+--- /dev/null
++++ b/src/routes/privacy.tsx
+@@ -0,0 +1,86 @@
++import { createFileRoute, Link } from "@tanstack/react-router";
++
++export const Route = createFileRoute("/privacy")({
++  head: () => ({
++    meta: [
++      { title: "Privacy Policy | West Core" },
++      {
++        name: "description",
++        content: "How West Core collects, uses, and protects your information.",
++      },
++      { property: "og:title", content: "Privacy Policy | West Core" },
++    ],
++  }),
++  component: PrivacyPage,
++});
++
++const sections = [
++  {
++    title: "1. Information we collect",
++    body: "When you browse West Core or place an order, we may collect information you give us directly — such as your name, email address, shipping address, and payment details — as well as information collected automatically, like your device type, browser, and how you interact with our site (pages viewed, items added to your bag).",
++  },
++  {
++    title: "2. How we use your information",
++    body: "We use this information to process and fulfil orders, respond to enquiries, improve our site and products, prevent fraud, and — where you've opted in — send you updates about new arrivals and offers. We do not sell your personal information to third parties.",
++  },
++  {
++    title: "3. Cookies",
++    body: "We use cookies and similar technologies to keep your bag and preferences saved between visits, understand how our site is used, and measure the performance of our pages. You can control or disable cookies through your browser settings, though some features may not work as intended without them.",
++  },
++  {
++    title: "4. Sharing your information",
++    body: "We share information only with the service providers who help us run our business — such as payment processors and shipping carriers — and only to the extent needed for them to provide that service. We require these providers to protect your data and use it only for the purpose we've engaged them for.",
++  },
++  {
++    title: "5. Data retention",
++    body: "We keep your information for as long as your account is active or as needed to provide you services, comply with our legal obligations, resolve disputes, and enforce our agreements.",
++  },
++  {
++    title: "6. Your rights",
++    body: "Depending on where you live, you may have the right to access, correct, delete, or export the personal information we hold about you, or to object to certain uses of it. To exercise any of these rights, contact us using the details below.",
++  },
++  {
++    title: "7. Changes to this policy",
++    body: "We may update this policy from time to time. If we make material changes, we'll update the date below and, where appropriate, notify you directly.",
++  },
++];
++
++function PrivacyPage() {
++  return (
++    <div className="mx-auto max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
++      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Legal</p>
++      <h1 className="display-xl mt-2 text-3xl sm:text-4xl">Privacy Policy</h1>
++      <p className="mt-3 text-sm text-muted-foreground">Last updated: September 7, 2026</p>
++
++      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
++        This Privacy Policy explains how West Core ("we", "us", "our") collects, uses, and protects
++        information when you visit our website or make a purchase. By using our site, you agree to
++        the practices described here.
++      </p>
++
++      <div className="mt-10 space-y-8">
++        {sections.map((s) => (
++          <div key={s.title}>
++            <h2 className="font-semibold">{s.title}</h2>
++            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{s.body}</p>
++          </div>
++        ))}
++      </div>
++
++      <div className="mt-10 rounded-3xl bg-secondary p-5 sm:p-6">
++        <h2 className="font-semibold">Contact us</h2>
++        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
++          If you have questions about this policy or how we handle your data, reach us at{" "}
++          <a href="mailto:hello@westcore.com" className="font-medium text-coral">
++            hello@westcore.com
++          </a>{" "}
++          or visit our{" "}
++          <Link to="/contact" className="font-medium text-coral">
++            Contact page
++          </Link>
++          .
++        </p>
++      </div>
++    </div>
++  );
++}

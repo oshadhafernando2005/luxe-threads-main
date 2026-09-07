@@ -31,6 +31,11 @@ export function SiteFooter() {
                   Your Bag
                 </Link>
               </li>
+              <li>
+                <Link to="/about" className="hover:text-coral">
+                  About Us
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -59,9 +64,20 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <p className="mt-10 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} West Core. All rights reserved.
-        </p>
+        <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>© {new Date().getFullYear()} West Core. All rights reserved.</p>
+          <div className="flex gap-4">
+            <Link to="/about" className="hover:text-coral">
+              About
+            </Link>
+            <Link to="/privacy" className="hover:text-coral">
+              Privacy Policy
+            </Link>
+            <Link to="/contact" className="hover:text-coral">
+              Contact
+            </Link>
+          </div>
+        </div>
       </div>
     </footer>
   );
