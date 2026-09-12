@@ -72,15 +72,21 @@ export function SiteFooter() {
 
         <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} West Core. All rights reserved.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
             <Link to="/about" className="hover:text-coral">
               About
+            </Link>
+            <Link to="/contact" className="hover:text-coral">
+              Contact
             </Link>
             <Link to="/privacy" className="hover:text-coral">
               Privacy Policy
             </Link>
-            <Link to="/contact" className="hover:text-coral">
-              Contact
+            <Link to="/returns" className="hover:text-coral">
+              Return Policy
+            </Link>
+            <Link to="/terms" className="hover:text-coral">
+              Terms &amp; Conditions
             </Link>
           </div>
         </div>

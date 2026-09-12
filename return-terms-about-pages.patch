@@ -1,0 +1,746 @@
+diff --git a/src/components/SiteFooter.tsx b/src/components/SiteFooter.tsx
+index da7db02..79bb7cf 100644
+--- a/src/components/SiteFooter.tsx
++++ b/src/components/SiteFooter.tsx
+@@ -72,15 +72,21 @@ export function SiteFooter() {
+ 
+         <div className="mt-10 flex flex-col gap-3 border-t border-border/70 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+           <p>© {new Date().getFullYear()} West Core. All rights reserved.</p>
+-          <div className="flex gap-4">
++          <div className="flex flex-wrap gap-x-4 gap-y-2">
+             <Link to="/about" className="hover:text-coral">
+               About
+             </Link>
++            <Link to="/contact" className="hover:text-coral">
++              Contact
++            </Link>
+             <Link to="/privacy" className="hover:text-coral">
+               Privacy Policy
+             </Link>
+-            <Link to="/contact" className="hover:text-coral">
+-              Contact
++            <Link to="/returns" className="hover:text-coral">
++              Return Policy
++            </Link>
++            <Link to="/terms" className="hover:text-coral">
++              Terms &amp; Conditions
+             </Link>
+           </div>
+         </div>
+diff --git a/src/routeTree.gen.ts b/src/routeTree.gen.ts
+index 8f1f8c1..7526e53 100644
+--- a/src/routeTree.gen.ts
++++ b/src/routeTree.gen.ts
+@@ -15,6 +15,8 @@ import { Route as CartRouteImport } from './routes/cart'
+ import { Route as ContactRouteImport } from './routes/contact'
+ import { Route as MenRouteImport } from './routes/men'
+ import { Route as PrivacyRouteImport } from './routes/privacy'
++import { Route as ReturnsRouteImport } from './routes/returns'
++import { Route as TermsRouteImport } from './routes/terms'
+ import { Route as WomenRouteImport } from './routes/women'
+ import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
+ 
+@@ -48,6 +50,16 @@ const PrivacyRoute = PrivacyRouteImport.update({
+   path: '/privacy',
+   getParentRoute: () => rootRouteImport,
+ } as any)
++const ReturnsRoute = ReturnsRouteImport.update({
++  id: '/returns',
++  path: '/returns',
++  getParentRoute: () => rootRouteImport,
++} as any)
++const TermsRoute = TermsRouteImport.update({
++  id: '/terms',
++  path: '/terms',
++  getParentRoute: () => rootRouteImport,
++} as any)
+ const WomenRoute = WomenRouteImport.update({
+   id: '/women',
+   path: '/women',
+@@ -66,6 +78,8 @@ export interface FileRoutesByFullPath {
+   '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
+   '/privacy': typeof PrivacyRoute
++  '/returns': typeof ReturnsRoute
++  '/terms': typeof TermsRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+@@ -76,6 +90,8 @@ export interface FileRoutesByTo {
+   '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
+   '/privacy': typeof PrivacyRoute
++  '/returns': typeof ReturnsRoute
++  '/terms': typeof TermsRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+@@ -87,6 +103,8 @@ export interface FileRoutesById {
+   '/contact': typeof ContactRoute
+   '/men': typeof MenRoute
+   '/privacy': typeof PrivacyRoute
++  '/returns': typeof ReturnsRoute
++  '/terms': typeof TermsRoute
+   '/women': typeof WomenRoute
+   '/product/$productId': typeof ProductProductIdRoute
+ }
+@@ -99,6 +117,8 @@ export interface FileRouteTypes {
+     | '/contact'
+     | '/men'
+     | '/privacy'
++    | '/returns'
++    | '/terms'
+     | '/women'
+     | '/product/$productId'
+   fileRoutesByTo: FileRoutesByTo
+@@ -109,6 +129,8 @@ export interface FileRouteTypes {
+     | '/contact'
+     | '/men'
+     | '/privacy'
++    | '/returns'
++    | '/terms'
+     | '/women'
+     | '/product/$productId'
+   id:
+@@ -119,6 +141,8 @@ export interface FileRouteTypes {
+     | '/contact'
+     | '/men'
+     | '/privacy'
++    | '/returns'
++    | '/terms'
+     | '/women'
+     | '/product/$productId'
+   fileRoutesById: FileRoutesById
+@@ -130,6 +154,8 @@ export interface RootRouteChildren {
+   ContactRoute: typeof ContactRoute
+   MenRoute: typeof MenRoute
+   PrivacyRoute: typeof PrivacyRoute
++  ReturnsRoute: typeof ReturnsRoute
++  TermsRoute: typeof TermsRoute
+   WomenRoute: typeof WomenRoute
+   ProductProductIdRoute: typeof ProductProductIdRoute
+ }
+@@ -178,6 +204,20 @@ declare module '@tanstack/react-router' {
+       preLoaderRoute: typeof PrivacyRouteImport
+       parentRoute: typeof rootRouteImport
+     }
++    '/returns': {
++      id: '/returns'
++      path: '/returns'
++      fullPath: '/returns'
++      preLoaderRoute: typeof ReturnsRouteImport
++      parentRoute: typeof rootRouteImport
++    }
++    '/terms': {
++      id: '/terms'
++      path: '/terms'
++      fullPath: '/terms'
++      preLoaderRoute: typeof TermsRouteImport
++      parentRoute: typeof rootRouteImport
++    }
+     '/women': {
+       id: '/women'
+       path: '/women'
+@@ -202,6 +242,8 @@ const rootRouteChildren: RootRouteChildren = {
+   ContactRoute: ContactRoute,
+   MenRoute: MenRoute,
+   PrivacyRoute: PrivacyRoute,
++  ReturnsRoute: ReturnsRoute,
++  TermsRoute: TermsRoute,
+   WomenRoute: WomenRoute,
+   ProductProductIdRoute: ProductProductIdRoute,
+ }
+diff --git a/src/routes/about.tsx b/src/routes/about.tsx
+index ce9e0c7..c3224fb 100644
+--- a/src/routes/about.tsx
++++ b/src/routes/about.tsx
+@@ -1,41 +1,42 @@
+ import { createFileRoute, Link } from "@tanstack/react-router";
+-import { ArrowRight, Leaf, Ruler, Sparkles } from "lucide-react";
++import { ArrowRight } from "lucide-react";
+ import heroImg from "@/assets/hero.jpg";
+ 
+ export const Route = createFileRoute("/about")({
+   head: () => ({
+     meta: [
+-      { title: "About Us | West Core" },
++      { title: "About Us | WESTCORE" },
+       {
+         name: "description",
+         content:
+-          "West Core makes small-batch, long-staple cotton t-shirts built to last. Learn about our story and materials.",
++          "WESTCORE is a Sri Lankan fashion label built around a simple idea: clothing should feel like more than clothing.",
+       },
+-      { property: "og:title", content: "About Us | West Core" },
++      { property: "og:title", content: "About Us | WESTCORE" },
+       {
+         property: "og:description",
+-        content: "Small-batch premium t-shirts, made with long-staple cotton and a fit that holds.",
++        content: "Made with intention. Made in Sri Lanka. Less, but better.",
+       },
+     ],
+   }),
+   component: AboutPage,
+ });
+ 
+-const values = [
++const sections = [
+   {
+-    icon: Leaf,
+-    title: "Considered materials",
+-    body: "Every tee starts with long-staple cotton, garment-dyed in small batches so colour stays true wash after wash.",
++    title: "Made with intention",
++    body: "Every WESTCORE piece begins with the details. From the weight and feel of the fabric to the fit, finishing and artwork, we care about how a piece looks, how it feels and how it exists in the real world. We keep our approach intentional rather than excessive. Instead of producing endless collections, we focus on individual pieces and limited quantities that we genuinely want to wear.",
+   },
+   {
+-    icon: Ruler,
+-    title: "A fit that holds",
+-    body: "We obsess over pattern-making so the drape and shoulder line stay right — not just on day one, but a year in.",
++    title: "Made in Sri Lanka",
++    body: "WESTCORE is proudly made in Sri Lanka. We believe great fashion does not need to come from somewhere else. Our goal is to build a brand from here that can stand confidently alongside the brands we admire around the world. Sri Lanka is where WESTCORE started. It is part of where we are going.",
+   },
+   {
+-    icon: Sparkles,
+-    title: "Small batches, less waste",
+-    body: "We produce in limited runs instead of chasing volume, which means less overstock and fewer compromises on quality.",
++    title: "Less, but better",
++    body: "We don't believe in making something simply because we can. Our collections are intentionally limited, allowing us to put more thought into each release and keep every piece feeling special. When something is gone, it may not come back.",
++  },
++  {
++    title: "The world of WESTCORE",
++    body: "WESTCORE is more than the products we release. It is the places, people, music, visuals, late nights, quiet moments and everyday experiences around them. We want WESTCORE to feel like a world you can step into — not just a logo printed on a T-shirt. This is only the beginning.",
+   },
+ ];
+ 
+@@ -45,58 +46,53 @@ function AboutPage() {
+       <section className="rise-in relative overflow-hidden rounded-3xl bg-secondary">
+         <img
+           src={heroImg}
+-          alt="West Core t-shirts"
++          alt="WESTCORE"
+           width={1408}
+           height={1008}
+           className="h-[42vh] min-h-[280px] w-full object-cover object-top sm:h-[48vh]"
+         />
+         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background via-background/70 to-transparent p-5 pt-20 sm:p-10 sm:pt-28">
+-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Our story</p>
+-          <h1 className="display-xl mt-2 max-w-xl text-3xl sm:text-5xl">
+-            Built around one perfect tee.
+-          </h1>
++          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">
++            From here, forward.
++          </p>
++          <h1 className="display-xl mt-2 max-w-xl text-3xl sm:text-5xl">WESTCORE</h1>
+         </div>
+       </section>
+ 
+       <section className="mt-10 max-w-2xl">
+         <p className="text-sm leading-relaxed text-muted-foreground sm:text-base">
+-          West Core started with a simple frustration: most t-shirts are either cheap and shapeless,
+-          or expensive for no reason you can feel. So we set out to make one thing well — a t-shirt
+-          cut from proper cotton, finished carefully, and priced for what it actually costs to do
+-          that right.
++          WESTCORE is a Sri Lankan fashion label built around a simple idea: clothing should feel
++          like more than clothing.
+         </p>
+         <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+-          We're a small team, and we release new pieces in limited runs rather than restocking
+-          endlessly. It means some designs sell out — and that's on purpose. We'd rather make less,
+-          and make it count.
++          Born in Sri Lanka and shaped by contemporary culture, WESTCORE explores the space between
++          streetwear, everyday essentials and modern fashion. We create pieces that are considered,
++          wearable and distinctive without trying too hard.
++        </p>
++        <p className="mt-6 font-display text-lg font-semibold sm:text-xl">
++          We are not here to follow every trend.
++          <br />
++          We are here to build our own.
+         </p>
+       </section>
+ 
+-      <section className="mt-12">
+-        <h2 className="display-xl text-2xl sm:text-3xl">What we care about</h2>
+-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+-          {values.map(({ icon: Icon, title, body }) => (
+-            <div key={title} className="surface-card rounded-3xl p-5">
+-              <span className="grid h-11 w-11 place-items-center rounded-full bg-secondary">
+-                <Icon className="h-5 w-5" />
+-              </span>
+-              <h3 className="mt-4 font-semibold">{title}</h3>
+-              <p className="mt-1.5 text-sm text-muted-foreground">{body}</p>
+-            </div>
+-          ))}
+-        </div>
++      <section className="mt-14 max-w-2xl space-y-10">
++        {sections.map((s) => (
++          <div key={s.title}>
++            <h2 className="display-xl text-xl sm:text-2xl">{s.title}</h2>
++            <p className="mt-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
++              {s.body}
++            </p>
++          </div>
++        ))}
+       </section>
+ 
+-      <section className="my-16 flex flex-col items-start gap-4 rounded-3xl bg-secondary p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+-        <div>
+-          <h2 className="font-display text-xl font-extrabold sm:text-2xl">
+-            Ready to see it for yourself?
+-          </h2>
+-          <p className="mt-1 text-sm text-muted-foreground">Shop the current women's collection.</p>
+-        </div>
++      <section className="my-16 rounded-3xl bg-secondary p-6 text-center sm:p-10">
++        <p className="font-display text-xl font-extrabold sm:text-2xl">WESTCORE</p>
++        <p className="mt-1 text-sm text-muted-foreground sm:text-base">From here, forward.</p>
+         <Link
+           to="/women"
+-          className="press inline-flex h-12 shrink-0 items-center gap-2 rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
++          className="press mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
+         >
+           Shop now <ArrowRight className="h-4 w-4" />
+         </Link>
+diff --git a/src/routes/returns.tsx b/src/routes/returns.tsx
+new file mode 100644
+index 0000000..a200a54
+--- /dev/null
++++ b/src/routes/returns.tsx
+@@ -0,0 +1,187 @@
++import { createFileRoute, Link } from "@tanstack/react-router";
++
++export const Route = createFileRoute("/returns")({
++  head: () => ({
++    meta: [
++      { title: "Return Policy | WESTCORE" },
++      {
++        name: "description",
++        content: "WESTCORE's policy on returns, exchanges, defective items and refunds.",
++      },
++      { property: "og:title", content: "Return Policy | WESTCORE" },
++    ],
++  }),
++  component: ReturnsPage,
++});
++
++function Email() {
++  return (
++    <a href="mailto:info@westcore.shop" className="font-medium text-coral">
++      info@westcore.shop
++    </a>
++  );
++}
++
++function H2({ children }: { children: React.ReactNode }) {
++  return <h2 className="font-semibold">{children}</h2>;
++}
++
++function P({ children }: { children: React.ReactNode }) {
++  return <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{children}</p>;
++}
++
++function UL({ items }: { items: React.ReactNode[] }) {
++  return (
++    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground">
++      {items.map((item, i) => (
++        <li key={i}>{item}</li>
++      ))}
++    </ul>
++  );
++}
++
++function ReturnsPage() {
++  return (
++    <div className="mx-auto max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
++      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Legal</p>
++      <h1 className="display-xl mt-2 text-3xl sm:text-4xl">Return Policy</h1>
++      <p className="mt-3 text-sm text-muted-foreground">Last updated: September 8, 2026</p>
++
++      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
++        This Return Policy explains how WESTCORE handles returns, exchanges, defective or incorrect
++        items, refunds and order cancellations. It forms part of our full{" "}
++        <Link to="/terms" className="font-medium text-coral">
++          Terms &amp; Conditions
++        </Link>
++        .
++      </p>
++
++      <div className="mt-10 space-y-8">
++        <div>
++          <H2>Returns</H2>
++          <P>
++            We do not accept returns simply because a customer has changed their mind about a
++            purchase.
++          </P>
++          <P>Returns are accepted only in the following circumstances:</P>
++          <UL
++            items={[
++              "The wrong item was sent.",
++              "The item received is defective or has a manufacturing issue.",
++            ]}
++          />
++          <P>
++            Items returned for an approved reason may be eligible for a replacement, exchange or
++            refund, depending on the circumstances and availability. Please contact us as soon as
++            possible after receiving your order if there is an issue.
++          </P>
++        </div>
++
++        <div>
++          <H2>Exchanges</H2>
++          <P>We allow exchanges, including exchanges due to size selection.</P>
++          <P>
++            For a change-of-mind or size exchange, the customer is responsible for the applicable
++            delivery costs associated with returning the original item and sending the replacement
++            item.
++          </P>
++          <P>
++            Before sending anything back, please contact <Email />. We will provide the relevant
++            instructions for your exchange.
++          </P>
++          <P>
++            Replacement items are subject to availability. If the requested replacement is
++            unavailable, we may offer another available option or another appropriate resolution.
++          </P>
++        </div>
++
++        <div>
++          <H2>Defective or incorrect items</H2>
++          <P>We want every WESTCORE order to arrive as it should.</P>
++          <P>
++            If you receive a defective item or an item that is different from what you ordered,
++            please contact us with your order details and information about the issue.
++          </P>
++          <P>
++            Where the issue is confirmed to be the responsibility of WESTCORE, we will provide an
++            appropriate resolution, which may include a replacement, exchange or refund.
++          </P>
++          <P>
++            We may request photographs or other reasonable information to help us assess the issue.
++            For confirmed defective or incorrect orders, WESTCORE will handle the applicable
++            resolution without charging the customer for the relevant return process.
++          </P>
++        </div>
++
++        <div>
++          <H2>Return &amp; exchange conditions</H2>
++          <P>
++            For hygiene, product quality and resale reasons, items must not have been washed or
++            worn.
++          </P>
++          <P>
++            Opening the original packaging does not automatically make an item ineligible for an
++            exchange or return. However, an item that has been washed, worn or otherwise used may
++            not qualify.
++          </P>
++          <P>
++            We recommend trying the item on carefully before washing or wearing it. All returned
++            items must be in a condition that allows us to reasonably assess the product.
++          </P>
++        </div>
++
++        <div>
++          <H2>How to request an exchange or return</H2>
++          <P>
++            To request a return or exchange, email <Email />. Please include:
++          </P>
++          <UL
++            items={[
++              "Order number",
++              "Customer name",
++              "Phone number",
++              "Reason for the request",
++              "Relevant photographs, where applicable",
++            ]}
++          />
++          <P>Please do not send an item back before contacting us and receiving instructions.</P>
++        </div>
++
++        <div>
++          <H2>Refunds</H2>
++          <P>
++            Where a refund is approved, the refund will be processed through an appropriate payment
++            method based on the original order and payment method. The time required for a refund to
++            appear may depend on the payment provider or financial institution involved.
++          </P>
++          <P>
++            For COD orders, we will provide the appropriate refund instructions once the return has
++            been approved.
++          </P>
++        </div>
++
++        <div>
++          <H2>Order cancellations</H2>
++          <P>Please contact us as soon as possible if you need to cancel an order.</P>
++          <P>
++            Because orders may be processed or dispatched quickly, we cannot guarantee that a
++            cancellation will be possible after processing has begun. Once an order has been
++            dispatched, it will generally be handled under our applicable delivery, return and
++            exchange policies.
++          </P>
++        </div>
++      </div>
++
++      <div className="mt-10 rounded-3xl bg-secondary p-5 sm:p-6">
++        <h2 className="font-semibold">Need to start a return or exchange?</h2>
++        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
++          Email us at <Email /> or visit our{" "}
++          <Link to="/contact" className="font-medium text-coral">
++            Contact page
++          </Link>
++          .
++        </p>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/routes/terms.tsx b/src/routes/terms.tsx
+new file mode 100644
+index 0000000..01b5530
+--- /dev/null
++++ b/src/routes/terms.tsx
+@@ -0,0 +1,246 @@
++import { createFileRoute, Link } from "@tanstack/react-router";
++
++export const Route = createFileRoute("/terms")({
++  head: () => ({
++    meta: [
++      { title: "Terms & Conditions | WESTCORE" },
++      {
++        name: "description",
++        content: "WESTCORE's terms of use covering orders, pricing, payment, shipping and more.",
++      },
++      { property: "og:title", content: "Terms & Conditions | WESTCORE" },
++    ],
++  }),
++  component: TermsPage,
++});
++
++function Email() {
++  return (
++    <a href="mailto:info@westcore.shop" className="font-medium text-coral">
++      info@westcore.shop
++    </a>
++  );
++}
++
++function H2({ children }: { children: React.ReactNode }) {
++  return <h2 className="font-semibold">{children}</h2>;
++}
++
++function P({ children }: { children: React.ReactNode }) {
++  return <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{children}</p>;
++}
++
++function UL({ items }: { items: React.ReactNode[] }) {
++  return (
++    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-muted-foreground">
++      {items.map((item, i) => (
++        <li key={i}>{item}</li>
++      ))}
++    </ul>
++  );
++}
++
++function TermsPage() {
++  return (
++    <div className="mx-auto max-w-3xl px-4 pb-16 pt-8 sm:px-6 sm:pt-12">
++      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-coral">Legal</p>
++      <h1 className="display-xl mt-2 text-3xl sm:text-4xl">Terms &amp; Conditions</h1>
++      <p className="mt-3 text-sm text-muted-foreground">Last updated: September 8, 2026</p>
++
++      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
++        Welcome to WESTCORE. These Terms &amp; Conditions explain how our website, orders, payments
++        and deliveries are handled. By using the WESTCORE website or placing an order, you agree to
++        the terms below. For information on returns, exchanges and refunds, see our{" "}
++        <Link to="/returns" className="font-medium text-coral">
++          Return Policy
++        </Link>
++        , and for how we handle your data, see our{" "}
++        <Link to="/privacy" className="font-medium text-coral">
++          Privacy Policy
++        </Link>
++        .
++      </p>
++
++      <div className="mt-10 space-y-8">
++        <div>
++          <H2>1. About WESTCORE</H2>
++          <P>This website and the WESTCORE brand are operated under the name WESTCORE.</P>
++          <P>
++            For questions regarding orders, products, returns, exchanges or your personal
++            information, please contact: <Email />
++          </P>
++        </div>
++
++        <div>
++          <H2>2. Orders</H2>
++          <P>
++            When you place an order through our website, you are submitting a request to purchase
++            the selected products. Once your order has been received, you should receive an order
++            confirmation containing the relevant order details.
++          </P>
++          <P>
++            Please make sure your name, phone number, email address and delivery address are
++            accurate before completing your order. WESTCORE is not responsible for delays or failed
++            deliveries caused by incorrect or incomplete customer information.
++          </P>
++          <P>
++            We reserve the right to cancel or decline an order in situations including, but not
++            limited to, incorrect product information, stock availability issues, suspected
++            fraudulent activity or technical errors.
++          </P>
++        </div>
++
++        <div>
++          <H2>3. Product availability</H2>
++          <P>
++            Our products may be released in limited quantities. Product availability is displayed on
++            the website and may change without notice. Because some WESTCORE releases are
++            intentionally limited, a product may become unavailable before you complete your
++            purchase.
++          </P>
++          <P>
++            We aim to ensure that product images and descriptions are as accurate as possible. Due
++            to screen settings, lighting and photography, colours may appear slightly different from
++            the actual product.
++          </P>
++        </div>
++
++        <div>
++          <H2>4. Pricing</H2>
++          <P>
++            All prices displayed on the WESTCORE website are in Sri Lankan Rupees (LKR) unless
++            otherwise stated.
++          </P>
++          <P>
++            We reserve the right to change product prices at any time before an order is placed.
++            Once an order has been successfully placed, the price confirmed at checkout will apply
++            to that order, subject to correction of genuine pricing or technical errors.
++          </P>
++        </div>
++
++        <div>
++          <H2>5. Payment</H2>
++          <P>
++            WESTCORE currently accepts online payments through PayHere as well as Cash on Delivery
++            (COD) where available.
++          </P>
++          <P>
++            For online payments, payment processing is handled through the payment service used at
++            checkout. WESTCORE does not directly handle or store your full payment-card details
++            through our website.
++          </P>
++          <P>COD orders are payable to the delivery provider when the order is delivered.</P>
++        </div>
++
++        <div>
++          <H2>6. Shipping &amp; delivery</H2>
++          <P>WESTCORE currently delivers within Sri Lanka.</P>
++          <P>
++            During our initial launch period, orders may take approximately 7–14 business days to
++            arrive depending on the delivery location, courier operations and other circumstances.
++            As our delivery operations develop, we aim to reduce delivery times where possible.
++          </P>
++          <P>
++            Delivery estimates are not guaranteed and may occasionally be affected by circumstances
++            outside our control, including courier delays, public holidays, weather conditions or
++            incorrect delivery information. Once an order has been handed to the delivery provider,
++            delivery is subject to the provider's operating procedures.
++          </P>
++          <P>
++            If you believe your order has been significantly delayed, please contact us at <Email />
++            .
++          </P>
++        </div>
++
++        <div>
++          <H2>7. Delivery address</H2>
++          <P>
++            Customers are responsible for providing a complete and accurate delivery address and
++            contact number. If a delivery cannot be completed because the information provided is
++            incorrect, incomplete or the customer is unavailable to receive the order, additional
++            delivery charges may apply for re-delivery.
++          </P>
++          <P>
++            Please ensure that someone is available to receive a COD order when delivery is
++            attempted.
++          </P>
++        </div>
++
++        <div>
++          <H2>8. Third-party services</H2>
++          <P>
++            WESTCORE may use trusted third-party services to operate parts of the business, such as:
++          </P>
++          <UL
++            items={[
++              "Payment providers",
++              "Delivery and courier services",
++              "Website hosting and technology providers",
++              "Email or communication services",
++            ]}
++          />
++          <P>
++            These providers may receive information necessary to perform the services they provide
++            to us. We only intend to share information where reasonably necessary for these purposes
++            or where required by applicable obligations.
++          </P>
++        </div>
++
++        <div>
++          <H2>9. Intellectual property</H2>
++          <P>
++            All WESTCORE branding, logos, designs, graphics, photographs, written content, product
++            artwork and other original materials displayed on this website are owned by or used by
++            WESTCORE with appropriate permission. You may not reproduce, copy, modify, distribute,
++            sell or commercially use WESTCORE content without prior written permission.
++          </P>
++        </div>
++
++        <div>
++          <H2>10. Website information</H2>
++          <P>
++            We make reasonable efforts to ensure that information displayed on the website is
++            accurate and up to date. However, occasional errors may occur, including errors
++            involving product descriptions, images, pricing, availability or website functionality.
++            WESTCORE reserves the right to correct errors and update website information when
++            necessary.
++          </P>
++        </div>
++
++        <div>
++          <H2>11. Changes to these terms</H2>
++          <P>
++            WESTCORE may update these Terms &amp; Conditions from time to time to reflect changes to
++            our products, services, website or business operations. Any updated version will be
++            posted on this page with a revised Last Updated date.
++          </P>
++        </div>
++
++        <div>
++          <H2>12. Contact us</H2>
++          <P>
++            For questions about orders, products, delivery, exchanges, returns or anything else
++            relating to WESTCORE:
++          </P>
++          <P>
++            WESTCORE
++            <br />
++            Email: <Email />
++          </P>
++          <P>We'd rather you ask than be unsure.</P>
++        </div>
++      </div>
++
++      <div className="mt-10 rounded-3xl bg-secondary p-5 sm:p-6">
++        <h2 className="font-semibold">Still have a question?</h2>
++        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
++          Reach us at <Email /> or visit our{" "}
++          <Link to="/contact" className="font-medium text-coral">
++            Contact page
++          </Link>
++          .
++        </p>
++      </div>
++    </div>
++  );
++}

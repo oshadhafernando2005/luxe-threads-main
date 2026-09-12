@@ -15,6 +15,8 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as MenRouteImport } from './routes/men'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReturnsRouteImport } from './routes/returns'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as WomenRouteImport } from './routes/women'
 import { Route as ProductProductIdRouteImport } from './routes/product.$productId'
 
@@ -48,6 +50,16 @@ const PrivacyRoute = PrivacyRouteImport.update({
   path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReturnsRoute = ReturnsRouteImport.update({
+  id: '/returns',
+  path: '/returns',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WomenRoute = WomenRouteImport.update({
   id: '/women',
   path: '/women',
@@ -66,6 +78,8 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/men': typeof MenRoute
   '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/women': typeof WomenRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -76,6 +90,8 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/men': typeof MenRoute
   '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/women': typeof WomenRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -87,6 +103,8 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/men': typeof MenRoute
   '/privacy': typeof PrivacyRoute
+  '/returns': typeof ReturnsRoute
+  '/terms': typeof TermsRoute
   '/women': typeof WomenRoute
   '/product/$productId': typeof ProductProductIdRoute
 }
@@ -99,6 +117,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/men'
     | '/privacy'
+    | '/returns'
+    | '/terms'
     | '/women'
     | '/product/$productId'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +129,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/men'
     | '/privacy'
+    | '/returns'
+    | '/terms'
     | '/women'
     | '/product/$productId'
   id:
@@ -119,6 +141,8 @@ export interface FileRouteTypes {
     | '/contact'
     | '/men'
     | '/privacy'
+    | '/returns'
+    | '/terms'
     | '/women'
     | '/product/$productId'
   fileRoutesById: FileRoutesById
@@ -130,6 +154,8 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   MenRoute: typeof MenRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReturnsRoute: typeof ReturnsRoute
+  TermsRoute: typeof TermsRoute
   WomenRoute: typeof WomenRoute
   ProductProductIdRoute: typeof ProductProductIdRoute
 }
@@ -178,6 +204,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/returns': {
+      id: '/returns'
+      path: '/returns'
+      fullPath: '/returns'
+      preLoaderRoute: typeof ReturnsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/women': {
       id: '/women'
       path: '/women'
@@ -202,6 +242,8 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   MenRoute: MenRoute,
   PrivacyRoute: PrivacyRoute,
+  ReturnsRoute: ReturnsRoute,
+  TermsRoute: TermsRoute,
   WomenRoute: WomenRoute,
   ProductProductIdRoute: ProductProductIdRoute,
 }
