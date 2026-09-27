@@ -1,9 +1,8 @@
-const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
+import emailjs from "@emailjs/browser";
 
-type EmailJsResponse = {
-  status: number;
-  text: string;
-};
+const SERVICE_ID = "service_bcv032d";
+const TEMPLATE_ID = "template_x0g97ab";
+const PUBLIC_KEY = "SvZ-CDs6Shj2iO6Mn";
 
 export type OrderEmailParams = {
   order_id: string;
@@ -17,31 +16,35 @@ export type OrderEmailParams = {
   payment_method: string;
 };
 
-export async function sendOrderEmail(params: OrderEmailParams): Promise<void> {
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+export async function sendOrderEmail(
+  params: OrderEmailParams,
+): Promise<void> {
+  console.log("========== EMAILJS START ==========");
+  console.log("Service ID:", SERVICE_ID);
+  console.log("Template ID:", TEMPLATE_ID);
+  console.log("Parameters:", params);
 
-  if (!serviceId || !templateId || !publicKey) {
-    throw new Error("EmailJS is not configured. Add the VITE_EMAILJS_* values to your .env file.");
-  }
+  try {
+    const response = await emailjs.send(
+      SERVICE_ID,
+      TEMPLATE_ID,
+      params,
+      {
+        publicKey: PUBLIC_KEY,
+      },
+    );
 
-  const response = await fetch(EMAILJS_ENDPOINT, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      service_id: serviceId,
-      template_id: templateId,
-      user_id: publicKey,
-      template_params: params,
-    }),
-  });
+    console.log("EmailJS SUCCESS");
+    console.log("Status:", response.status);
+    console.log("Text:", response.text);
+  } catch (error: any) {
+    console.error("========== EMAILJS ERROR ==========");
+    console.error("Error:", error);
+    console.error("Status:", error?.status);
+    console.error("Text:", error?.text);
+    console.error("Message:", error?.message);
+    console.error("====================================");
 
-  const result = (await response.json().catch(() => null)) as EmailJsResponse | null;
-
-  if (!response.ok) {
-    throw new Error(result?.text || "EmailJS could not send the order.");
+    throw error;
   }
 }

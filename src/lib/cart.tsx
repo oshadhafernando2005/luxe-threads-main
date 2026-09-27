@@ -14,13 +14,19 @@ export type CartLine = {
   productId: string;
   size: string;
   color: string;
+  sticker: string;
   qty: number;
 };
 
 type CartState = {
   lines: CartLine[];
   favorites: string[];
-  add: (product: Product, size: string, color: string) => void;
+  add: (
+    product: Product,
+    size: string,
+    color: string,
+    sticker: string,
+  ) => void;
   remove: (id: string) => void;
   clear: () => void;
   setQty: (id: string, qty: number) => void;
@@ -40,6 +46,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
+
       if (raw) {
         const parsed = JSON.parse(raw);
         setLines(parsed.lines ?? []);
@@ -52,28 +59,57 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ lines, favorites }));
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ lines, favorites }),
+      );
     } catch {
       /* ignore */
     }
   }, [lines, favorites]);
 
-  const add = useCallback((product: Product, size: string, color: string) => {
-    const id = `${product.id}__${size}__${color}`;
-    setLines((prev) => {
-      const existing = prev.find((l) => l.id === id);
-      if (existing) return prev.map((l) => (l.id === id ? { ...l, qty: l.qty + 1 } : l));
-      return [...prev, { id, productId: product.id, size, color, qty: 1 }];
-    });
-  }, []);
+  const add = useCallback(
+    (product: Product, size: string, color: string, sticker: string) => {
+      const id = `${product.id}__${size}__${color}__${sticker}`;
 
-  const remove = useCallback((id: string) => setLines((p) => p.filter((l) => l.id !== id)), []);
+      setLines((prev) => {
+        const existing = prev.find((l) => l.id === id);
+
+        if (existing) {
+          return prev.map((l) =>
+            l.id === id ? { ...l, qty: l.qty + 1 } : l,
+          );
+        }
+
+        return [
+          ...prev,
+          {
+            id,
+            productId: product.id,
+            size,
+            color,
+            sticker,
+            qty: 1,
+          },
+        ];
+      });
+    },
+    [],
+  );
+
+  const remove = useCallback(
+    (id: string) => setLines((p) => p.filter((l) => l.id !== id)),
+    [],
+  );
+
   const clear = useCallback(() => setLines([]), []);
 
   const setQty = useCallback(
     (id: string, qty: number) =>
       setLines((p) =>
-        qty <= 0 ? p.filter((l) => l.id !== id) : p.map((l) => (l.id === id ? { ...l, qty } : l)),
+        qty <= 0
+          ? p.filter((l) => l.id !== id)
+          : p.map((l) => (l.id === id ? { ...l, qty } : l)),
       ),
     [],
   );
@@ -81,25 +117,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const toggleFavorite = useCallback(
     (productId: string) =>
       setFavorites((p) =>
-        p.includes(productId) ? p.filter((x) => x !== productId) : [...p, productId],
+        p.includes(productId)
+          ? p.filter((x) => x !== productId)
+          : [...p, productId],
       ),
     [],
   );
 
   const value = useMemo<CartState>(() => {
     const count = lines.reduce((s, l) => s + l.qty, 0);
+
     const subtotal = lines.reduce((s, l) => {
       const p = products.find((x) => x.id === l.productId);
       return s + (p ? p.price * l.qty : 0);
     }, 0);
-    return { lines, favorites, add, remove, clear, setQty, toggleFavorite, count, subtotal };
+
+    return {
+      lines,
+      favorites,
+      add,
+      remove,
+      clear,
+      setQty,
+      toggleFavorite,
+      count,
+      subtotal,
+    };
   }, [lines, favorites, add, remove, clear, setQty, toggleFavorite]);
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used within CartProvider");
+
+  if (!ctx) {
+    throw new Error("useCart must be used within CartProvider");
+  }
+
   return ctx;
 }
