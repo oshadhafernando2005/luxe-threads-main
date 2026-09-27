@@ -146,9 +146,13 @@ function ProductPage() {
           <button
             type="button"
             onClick={() => {
-              add(product, size, color);
-              toast.success(`${product.name} · ${size} added to bag`);
-            }}
+            const stickerName = sticker
+              ? `Sticker ${product.stickers?.indexOf(sticker)! + 1}`
+              : "No Sticker";
+
+            add(product, size, color, stickerName);
+            toast.success(`${product.name} · ${size} added to bag`);
+          }}
             className="press mt-7 hidden h-14 w-full rounded-full bg-coral text-sm font-semibold text-coral-foreground lg:block"
           >
             Add to Cart · {formatPrice(product.price)}
@@ -160,9 +164,13 @@ function ProductPage() {
         <button
           type="button"
           onClick={() => {
-            add(product, size, color);
-            toast.success(`${product.name} · ${size} added to bag`);
-          }}
+          const stickerName = sticker
+            ? `Sticker ${product.stickers?.indexOf(sticker)! + 1}`
+            : "No Sticker";
+
+          add(product, size, color, stickerName);
+          toast.success(`${product.name} · ${size} added to bag`);
+        }}
           className="press h-14 w-full rounded-full bg-coral text-sm font-semibold text-coral-foreground"
         >
           Add to Cart · {formatPrice(product.price)}
@@ -171,3 +179,4 @@ function ProductPage() {
     </div>
   );
 }
+

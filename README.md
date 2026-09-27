@@ -118,3 +118,27 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Cash-on-delivery checkout / EmailJS
+
+The cart checkout is COD-only. Checkout collects the customer's full name, phone number and delivery address, then sends the order details through EmailJS.
+
+Copy `.env.example` to `.env` and fill in:
+
+- `VITE_EMAILJS_SERVICE_ID`
+- `VITE_EMAILJS_TEMPLATE_ID`
+- `VITE_EMAILJS_PUBLIC_KEY`
+
+Create an EmailJS template whose recipient is the store email and use these template variables:
+
+- `{{order_id}}`
+- `{{customer_name}}`
+- `{{customer_phone}}`
+- `{{customer_address}}`
+- `{{items}}`
+- `{{subtotal}}`
+- `{{shipping}}`
+- `{{total}}`
+- `{{payment_method}}`
+
+The cart is cleared only after EmailJS confirms the email was accepted.

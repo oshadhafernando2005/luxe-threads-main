@@ -22,6 +22,7 @@ type CartState = {
   favorites: string[];
   add: (product: Product, size: string, color: string) => void;
   remove: (id: string) => void;
+  clear: () => void;
   setQty: (id: string, qty: number) => void;
   toggleFavorite: (productId: string) => void;
   count: number;
@@ -67,6 +68,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const remove = useCallback((id: string) => setLines((p) => p.filter((l) => l.id !== id)), []);
+  const clear = useCallback(() => setLines([]), []);
 
   const setQty = useCallback(
     (id: string, qty: number) =>
@@ -90,8 +92,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const p = products.find((x) => x.id === l.productId);
       return s + (p ? p.price * l.qty : 0);
     }, 0);
-    return { lines, favorites, add, remove, setQty, toggleFavorite, count, subtotal };
-  }, [lines, favorites, add, remove, setQty, toggleFavorite]);
+    return { lines, favorites, add, remove, clear, setQty, toggleFavorite, count, subtotal };
+  }, [lines, favorites, add, remove, clear, setQty, toggleFavorite]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

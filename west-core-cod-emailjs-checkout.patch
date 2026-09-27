@@ -1,0 +1,356 @@
+diff --git a/.env.example b/.env.example
+new file mode 100644
+index 0000000..da09f0f
+--- /dev/null
++++ b/.env.example
+@@ -0,0 +1,4 @@
++# EmailJS public browser configuration
++VITE_EMAILJS_SERVICE_ID=your_service_id
++VITE_EMAILJS_TEMPLATE_ID=your_template_id
++VITE_EMAILJS_PUBLIC_KEY=your_public_key
+diff --git a/README.md b/README.md
+index fc53b2a..7e048ae 100644
+--- a/README.md
++++ b/README.md
+@@ -118,3 +118,27 @@ cd <repository-name>
+ npm i
+ npm run dev
+ ```
++
++## Cash-on-delivery checkout / EmailJS
++
++The cart checkout is COD-only. Checkout collects the customer's full name, phone number and delivery address, then sends the order details through EmailJS.
++
++Copy `.env.example` to `.env` and fill in:
++
++- `VITE_EMAILJS_SERVICE_ID`
++- `VITE_EMAILJS_TEMPLATE_ID`
++- `VITE_EMAILJS_PUBLIC_KEY`
++
++Create an EmailJS template whose recipient is the store email and use these template variables:
++
++- `{{order_id}}`
++- `{{customer_name}}`
++- `{{customer_phone}}`
++- `{{customer_address}}`
++- `{{items}}`
++- `{{subtotal}}`
++- `{{shipping}}`
++- `{{total}}`
++- `{{payment_method}}`
++
++The cart is cleared only after EmailJS confirms the email was accepted.
+diff --git a/src/lib/cart.tsx b/src/lib/cart.tsx
+index bdd8cbe..a87374c 100644
+--- a/src/lib/cart.tsx
++++ b/src/lib/cart.tsx
+@@ -22,6 +22,7 @@ type CartState = {
+   favorites: string[];
+   add: (product: Product, size: string, color: string) => void;
+   remove: (id: string) => void;
++  clear: () => void;
+   setQty: (id: string, qty: number) => void;
+   toggleFavorite: (productId: string) => void;
+   count: number;
+@@ -67,6 +68,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
+   }, []);
+ 
+   const remove = useCallback((id: string) => setLines((p) => p.filter((l) => l.id !== id)), []);
++  const clear = useCallback(() => setLines([]), []);
+ 
+   const setQty = useCallback(
+     (id: string, qty: number) =>
+@@ -90,8 +92,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
+       const p = products.find((x) => x.id === l.productId);
+       return s + (p ? p.price * l.qty : 0);
+     }, 0);
+-    return { lines, favorites, add, remove, setQty, toggleFavorite, count, subtotal };
+-  }, [lines, favorites, add, remove, setQty, toggleFavorite]);
++    return { lines, favorites, add, remove, clear, setQty, toggleFavorite, count, subtotal };
++  }, [lines, favorites, add, remove, clear, setQty, toggleFavorite]);
+ 
+   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+ }
+diff --git a/src/lib/emailjs.ts b/src/lib/emailjs.ts
+new file mode 100644
+index 0000000..a3826d2
+--- /dev/null
++++ b/src/lib/emailjs.ts
+@@ -0,0 +1,47 @@
++const EMAILJS_ENDPOINT = "https://api.emailjs.com/api/v1.0/email/send";
++
++type EmailJsResponse = {
++  status: number;
++  text: string;
++};
++
++export type OrderEmailParams = {
++  order_id: string;
++  customer_name: string;
++  customer_phone: string;
++  customer_address: string;
++  items: string;
++  subtotal: string;
++  shipping: string;
++  total: string;
++  payment_method: string;
++};
++
++export async function sendOrderEmail(params: OrderEmailParams): Promise<void> {
++  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
++  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
++  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
++
++  if (!serviceId || !templateId || !publicKey) {
++    throw new Error("EmailJS is not configured. Add the VITE_EMAILJS_* values to your .env file.");
++  }
++
++  const response = await fetch(EMAILJS_ENDPOINT, {
++    method: "POST",
++    headers: {
++      "Content-Type": "application/json",
++    },
++    body: JSON.stringify({
++      service_id: serviceId,
++      template_id: templateId,
++      user_id: publicKey,
++      template_params: params,
++    }),
++  });
++
++  const result = (await response.json().catch(() => null)) as EmailJsResponse | null;
++
++  if (!response.ok) {
++    throw new Error(result?.text || "EmailJS could not send the order.");
++  }
++}
+diff --git a/src/routes/cart.tsx b/src/routes/cart.tsx
+index a3bcca9..7ead4b5 100644
+--- a/src/routes/cart.tsx
++++ b/src/routes/cart.tsx
+@@ -1,6 +1,8 @@
+ import { createFileRoute, Link } from "@tanstack/react-router";
++import { FormEvent, useState } from "react";
+ import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+ import { useCart } from "@/lib/cart";
++import { sendOrderEmail } from "@/lib/emailjs";
+ import { formatPrice, getProduct } from "@/lib/products";
+ 
+ export const Route = createFileRoute("/cart")({
+@@ -21,15 +23,108 @@ export const Route = createFileRoute("/cart")({
+   component: CartPage,
+ });
+ 
++type CheckoutForm = {
++  name: string;
++  phone: string;
++  address: string;
++};
++
++const initialForm: CheckoutForm = {
++  name: "",
++  phone: "",
++  address: "",
++};
++
++function createOrderId() {
++  const stamp = new Date().toISOString().replace(/\D/g, "").slice(0, 14);
++  const random = Math.floor(100 + Math.random() * 900);
++  return `WC-${stamp}-${random}`;
++}
++
+ function CartPage() {
+-  const { lines, setQty, remove, subtotal } = useCart();
++  const { lines, setQty, remove, clear, subtotal } = useCart();
++  const [checkoutOpen, setCheckoutOpen] = useState(false);
++  const [form, setForm] = useState<CheckoutForm>(initialForm);
++  const [isSending, setIsSending] = useState(false);
++  const [error, setError] = useState("");
++  const [confirmedOrderId, setConfirmedOrderId] = useState("");
++  const [confirmedCustomerName, setConfirmedCustomerName] = useState("");
+   const shipping = subtotal > 75 || subtotal === 0 ? 0 : 8;
++  const total = subtotal + shipping;
++
++  const openCheckout = () => {
++    setError("");
++    setConfirmedOrderId("");
++    setConfirmedCustomerName("");
++    setCheckoutOpen(true);
++  };
++
++  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
++    event.preventDefault();
++    if (isSending || lines.length === 0) return;
++
++    setIsSending(true);
++    setError("");
++
++    const orderId = createOrderId();
++    const items = lines
++      .map((line) => {
++        const product = getProduct(line.productId);
++        return product
++          ? `${product.name} | Size: ${line.size} | Colour: ${line.color} | Qty: ${line.qty} | ${formatPrice(product.price * line.qty)}`
++          : null;
++      })
++      .filter((item): item is string => Boolean(item))
++      .join("\n");
++
++    try {
++      await sendOrderEmail({
++        order_id: orderId,
++        customer_name: form.name.trim(),
++        customer_phone: form.phone.trim(),
++        customer_address: form.address.trim(),
++        items,
++        subtotal: formatPrice(subtotal),
++        shipping: shipping === 0 ? "Free" : formatPrice(shipping),
++        total: formatPrice(total),
++        payment_method: "Cash on Delivery (COD)",
++      });
++
++      clear();
++      setConfirmedCustomerName(form.name.trim());
++      setForm(initialForm);
++      setConfirmedOrderId(orderId);
++      setCheckoutOpen(false);
++    } catch (sendError) {
++      setError(sendError instanceof Error ? sendError.message : "Could not place the order. Please try again.");
++    } finally {
++      setIsSending(false);
++    }
++  };
+ 
+   return (
+     <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
+       <h1 className="display-xl text-3xl sm:text-4xl">Your Bag</h1>
+ 
+-      {lines.length === 0 ? (
++      {confirmedOrderId ? (
++        <div className="surface-card mt-8 px-6 py-10 text-center">
++          <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-secondary">
++            <ShoppingBag className="h-6 w-6" />
++          </div>
++          <h2 className="mt-5 text-2xl font-bold">Order confirmed!</h2>
++          <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
++            Thank you, {confirmedCustomerName || "your order"}. Your Cash on Delivery order has been sent successfully.
++          </p>
++          <p className="mt-4 text-sm font-semibold">Order reference: {confirmedOrderId}</p>
++          <p className="mt-2 text-xs text-muted-foreground">We will contact you using the phone number you provided.</p>
++          <Link
++            to="/women"
++            className="press mt-6 inline-flex h-12 items-center rounded-full bg-coral px-6 text-sm font-semibold text-coral-foreground"
++          >
++            Continue shopping
++          </Link>
++        </div>
++      ) : lines.length === 0 ? (
+         <div className="surface-card mt-8 flex flex-col items-center gap-4 px-6 py-16 text-center">
+           <span className="grid h-16 w-16 place-items-center rounded-full bg-secondary">
+             <ShoppingBag className="h-6 w-6" />
+@@ -124,17 +219,101 @@ function CartPage() {
+             </div>
+             <div className="flex justify-between border-t border-border pt-3">
+               <span className="font-semibold">Total</span>
+-              <span className="font-display text-xl font-bold">
+-                {formatPrice(subtotal + shipping)}
+-              </span>
++              <span className="font-display text-xl font-bold">{formatPrice(total)}</span>
+             </div>
+             <button
+               type="button"
++              onClick={openCheckout}
+               className="press mt-2 h-14 w-full rounded-full bg-coral text-sm font-semibold text-coral-foreground"
+             >
+-              Checkout
++              Checkout · Cash on Delivery
+             </button>
+           </div>
++
++          {checkoutOpen ? (
++            <div className="surface-card mt-6 p-5 sm:p-6">
++              <div className="flex items-start justify-between gap-4">
++                <div>
++                  <h2 className="text-xl font-bold">Delivery details</h2>
++                  <p className="mt-1 text-sm text-muted-foreground">
++                    Enter your details to place this Cash on Delivery order.
++                  </p>
++                </div>
++                <button
++                  type="button"
++                  onClick={() => setCheckoutOpen(false)}
++                  className="text-sm font-semibold text-muted-foreground hover:text-foreground"
++                >
++                  Close
++                </button>
++              </div>
++
++              <form onSubmit={handleSubmit} className="mt-5 space-y-4">
++                <label className="block">
++                  <span className="text-sm font-semibold">Full name</span>
++                  <input
++                    required
++                    autoComplete="name"
++                    value={form.name}
++                    onChange={(event) => setForm((current) => ({ ...current, name: event.target.value }))}
++                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm outline-none focus:ring-2 focus:ring-ring"
++                    placeholder="Your full name"
++                  />
++                </label>
++
++                <label className="block">
++                  <span className="text-sm font-semibold">Phone number</span>
++                  <input
++                    required
++                    type="tel"
++                    autoComplete="tel"
++                    value={form.phone}
++                    onChange={(event) => setForm((current) => ({ ...current, phone: event.target.value }))}
++                    className="mt-2 h-12 w-full rounded-xl border border-border bg-background px-4 text-sm outline-none focus:ring-2 focus:ring-ring"
++                    placeholder="07X XXX XXXX"
++                  />
++                </label>
++
++                <label className="block">
++                  <span className="text-sm font-semibold">Delivery address</span>
++                  <textarea
++                    required
++                    rows={4}
++                    autoComplete="street-address"
++                    value={form.address}
++                    onChange={(event) => setForm((current) => ({ ...current, address: event.target.value }))}
++                    className="mt-2 w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring"
++                    placeholder="House number, street, city, district"
++                  />
++                </label>
++
++                <div className="rounded-xl bg-secondary p-4 text-sm">
++                  <div className="flex justify-between gap-4">
++                    <span className="text-muted-foreground">Payment</span>
++                    <span className="font-semibold">Cash on Delivery</span>
++                  </div>
++                  <div className="mt-2 flex justify-between gap-4">
++                    <span className="text-muted-foreground">Order total</span>
++                    <span className="font-bold">{formatPrice(total)}</span>
++                  </div>
++                </div>
++
++                {error ? (
++                  <p role="alert" className="rounded-xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
++                    {error}
++                  </p>
++                ) : null}
++
++                <button
++                  type="submit"
++                  disabled={isSending}
++                  className="press h-14 w-full rounded-full bg-coral text-sm font-semibold text-coral-foreground disabled:cursor-not-allowed disabled:opacity-60"
++                >
++                  {isSending ? "Placing order…" : `Place COD Order · ${formatPrice(total)}`}
++                </button>
++              </form>
++            </div>
++          ) : null}
+         </>
+       )}
+     </div>
